@@ -140,11 +140,14 @@ function populateStationSelect() {
     select.empty().append('<option value="">Select a station...</option>');
     
     stationsData.forEach(station => {
-        select.append(`
-            <option value="${station.id}" data-station='${JSON.stringify(station)}'>
-                ${station.station_name} (${station.station_type}) - $${station.hourly_rate}/hr
-            </option>
-        `);
+        const $option = $('<option>', {
+            value: station.id,
+            text: `${station.station_name} (${station.station_type}) - $${station.hourly_rate}/hr`
+        });
+        
+        // Safely store the station data using jQuery's data method
+        $option.data('station', station);
+        select.append($option);
     });
 }
 
@@ -242,9 +245,18 @@ function initializeBookingForm() {
     $('#stationSelect').change(function() {
         const selectedOption = $(this).find('option:selected');
         if (selectedOption.val()) {
-            selectedStation = JSON.parse(selectedOption.data('station'));
-            showStationInfo();
-            checkAvailability();
+            try {
+                const stationData = selectedOption.data('station');
+                // Handle both string and object cases
+                selectedStation = typeof stationData === 'string' ? JSON.parse(stationData) : stationData;
+                showStationInfo();
+                checkAvailability();
+            } catch (error) {
+                console.error('Error parsing station data:', error);
+                showAlert('Error loading station information', 'error');
+                selectedStation = null;
+                hideStationInfo();
+            }
         } else {
             selectedStation = null;
             hideStationInfo();
@@ -441,6 +453,13 @@ async function submitBooking() {
             body: JSON.stringify(formData)
         });
         
+        // First check if the response is OK
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Server error:', errorData);
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+        }
+        
         const result = await response.json();
         
         if (result.success) {
@@ -457,11 +476,14 @@ async function submitBooking() {
             // Switch to bookings tab
             $('.tab-button[data-tab="bookings"]').click();
         } else {
-            showAlert(result.message, 'error');
+            const errorMessage = result.message || 'Unknown error occurred while creating booking';
+            console.error('Booking error:', result);
+            showAlert(errorMessage, 'error');
         }
     } catch (error) {
-        showAlert('Error creating booking', 'error');
-        console.error('Error:', error);
+        const errorMessage = error.message || 'An unexpected error occurred while creating the booking';
+        console.error('Booking creation error:', error);
+        showAlert(errorMessage, 'error');
     }
 }
 

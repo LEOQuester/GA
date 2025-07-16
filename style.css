@@ -1,0 +1,360 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #111;
+  color: #eee;
+}
+
+a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.logo{
+  max-width: 70px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-name {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+}
+
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #222;
+  padding: 1rem 2rem;
+}
+
+.navbar nav a {
+  margin-left: 20px;
+  font-weight: 600;
+}
+
+.parallax-container {
+  position: relative;
+  width: 100%;
+  height: 110vh;
+}
+
+.parallax-layer {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.parallax-layer.layer-7 {
+  top: 402px !important;
+  z-index: 7;
+}
+
+.parallax-layer.layer-2 {
+  top: -335px !important;
+  left: -565px !important;
+}
+
+.hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 110vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hero-content {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: 12px;
+  pointer-events: auto;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.hero p {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.parallax {
+  position: relative;
+  height: 80vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  text-shadow: 1px 1px 4px #000;
+}
+
+.bg-video-rotate {
+  position: absolute;
+  width:900px; /* based on rotated height */
+  height: auto;
+  transform: rotate(-90deg);
+  opacity: 0.4;
+  z-index: -1;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.parallax-content {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 2rem;
+  border-radius: 10px;
+  z-index: 1;
+}
+
+.btn {
+  background: crimson;
+  color: #fff;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background: #c2185b;
+}
+
+.services {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: #1a1a1a;
+}
+
+.card-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: #333;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 200px;
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  background: #444;
+}
+
+.about {
+  padding: 4rem 1rem;
+  text-align: center;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.about-images {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: nowrap;
+  overflow-x: auto; /* optional scroll if overflow */
+}
+
+.cta {
+  background: #222;
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.featured-devices {
+  padding: 4rem 2rem;
+  text-align: center;
+  background-color: #111; /* dark theme */
+  color: #fff;
+}
+
+.featured-devices h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.device-card {
+  background-color: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 15px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.device-card:hover {
+  transform: translateY(-8px);
+}
+
+.device-card img {
+  width: 150px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.device-card h3 {
+  font-size: 1.3rem;
+  margin: 0.5rem 0;
+}
+
+.device-card p {
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+footer {
+  text-align: center;
+  padding: 1rem;
+  background: #000;
+}
+
+.lotties {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 0;
+  background: #111;
+}
+
+.welcome {
+  margin-left: 15px;
+  color: #0f0;
+  font-weight: 600;
+}
+
+/* AOS Fix for mobile background-attachment */
+@media (max-width: 768px) {
+  .parallax {
+    background-attachment: scroll;
+  }
+}
+
+.register-box {
+  width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  background: #222;
+  color: white;
+  border-radius: 12px;
+  box-shadow: 0 0 12px #00ffc8;
+}
+.register-box h2 {
+  text-align: center;
+}
+.register-box input,
+.register-box button {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  font-size: 16px;
+}
+.register-box .btn {
+  background: #00ffc8;
+  color: #000;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+.register-box .btn:hover {
+  background: #00d6ac;
+}
+
+.sec-scroll {
+  height: 100vh;
+  width: 100%;
+  background: #0e0e0e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+body.sec-scroll-active {
+  overflow: hidden;
+}
+
+.pricecontainer {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.pricecard {
+  position: absolute;
+  width: 90%;
+  max-width: 700px;
+  background: #1a1a1a;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+  opacity: 0;
+  transform: translateY(80px);
+  transition: opacity 1s ease, transform 1s ease;
+  text-align: center;
+}
+
+.pricecard h2 {
+  font-size: 2rem;
+  color: #ffcc00;
+  margin-bottom: 1rem;
+}
+
+.pricecard p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.pricecard.active {
+  opacity: 1;
+  transform: translateY(0);
+  z-index: 10;
+}
+
+.pricecard.hidden {
+  opacity: 0;
+  pointer-events: none;
+}

@@ -1,13 +1,13 @@
 <?php
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_PORT', '3308');
+define('DB_PORT', '3306');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_NAME', 'gaming_arena_v2');
 
 // Application configuration
-define('APP_URL', 'http://localhost/G-Arena');
+define('APP_URL', 'http://localhost/Gaming-Arena');
 define('ADMIN_SESSION_NAME', 'admin_logged_in');
 define('USER_SESSION_NAME', 'user_logged_in');
 
@@ -22,4 +22,3 @@ ini_set('display_errors', 1);
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-?>
