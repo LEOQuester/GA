@@ -219,7 +219,10 @@ switch ($method) {
 
     case 'PUT':
         // Admin only - update booking status
+        error_log("G-Arena Debug: PUT request received for booking status update");
+        
         if (!isAdminLoggedIn()) {
+            error_log("G-Arena Debug: Admin not logged in");
             http_response_code(403);
             echo json_encode(['success' => false, 'message' => 'Admin access required']);
             exit;
@@ -227,8 +230,11 @@ switch ($method) {
 
         $booking_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
         $input = json_decode(file_get_contents('php://input'), true);
+        
+        error_log("G-Arena Debug: Booking ID: {$booking_id}, Input: " . json_encode($input));
 
         if (!$booking_id || !isset($input['status'])) {
+            error_log("G-Arena Debug: Missing booking ID or status");
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Booking ID and status required']);
             exit;
@@ -236,12 +242,16 @@ switch ($method) {
 
         $allowed_statuses = ['pending', 'confirmed', 'completed', 'cancelled'];
         if (!in_array($input['status'], $allowed_statuses)) {
+            error_log("G-Arena Debug: Invalid status: " . $input['status']);
             http_response_code(400);
             echo json_encode(['success' => false, 'message' => 'Invalid status']);
             exit;
         }
 
+        error_log("G-Arena Debug: About to call updateBookingStatus with ID {$booking_id} and status {$input['status']}");
         $result = updateBookingStatus($booking_id, $input['status']);
+        error_log("G-Arena Debug: updateBookingStatus result: " . json_encode($result));
+        
         echo json_encode($result);
         break;
 

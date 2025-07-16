@@ -20,10 +20,11 @@ require_once 'components/sidebar.php';
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+    <link rel="stylesheet" href="assets/css/admin-gaming-theme.css">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 admin-theme">
     <div class="flex h-screen">
         <?php renderAdminSidebar('stations'); ?>
         
@@ -37,26 +38,26 @@ require_once 'components/sidebar.php';
             <!-- Page content -->
             <main class="flex-1 overflow-y-auto p-6">
                 <!-- Gaming Stations Management -->
-                <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="admin-card p-6">
                     <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-semibold text-gray-800">
-                            <i class="fas fa-desktop text-purple-600 mr-2"></i>Gaming Stations Management
+                        <h2 class="text-2xl font-semibold text-admin-text-light">
+                            <i class="fas fa-desktop text-pink-400 mr-2"></i>Gaming Stations Management
                         </h2>
-                        <button id="addStationBtn" class="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <button id="addStationBtn" class="admin-btn">
                             <i class="fas fa-plus mr-2"></i>Add Station
                         </button>
                     </div>
                     
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto admin-table">
                         <table id="stationsTable" class="w-full table-auto">
                             <thead>
                                 <tr>
-                                    <th>Station Name</th>
-                                    <th>Type</th>
-                                    <th>Hourly Rate</th>
-                                    <th>Status</th>
-                                    <th>Description</th>
-                                    <th>Actions</th>
+                                    <th><i class="fas fa-gamepad mr-2"></i>Station Name</th>
+                                    <th><i class="fas fa-tag mr-2"></i>Type</th>
+                                    <th><i class="fas fa-coins mr-2"></i>Hourly Rate</th>
+                                    <th><i class="fas fa-power-off mr-2"></i>Status</th>
+                                    <th><i class="fas fa-info-circle mr-2"></i>Description</th>
+                                    <th><i class="fas fa-cog mr-2"></i>Actions</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -65,12 +66,12 @@ require_once 'components/sidebar.php';
                 </div>
 
                 <!-- Station Modal -->
-                <div id="stationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+                <div id="stationModal" class="fixed inset-0 modal-overlay hidden z-50">
                     <div class="flex items-center justify-center min-h-screen p-4">
-                        <div class="bg-white rounded-lg max-w-md w-full p-6">
+                        <div class="modal-content max-w-md w-full p-6">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 id="modalTitle" class="text-lg font-semibold">Add Gaming Station</h3>
-                                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                                <h3 id="modalTitle" class="text-lg font-semibold text-admin-text-light">Add Gaming Station</h3>
+                                <button id="closeModal" class="text-admin-text-muted hover:text-white">
                                     <i class="fas fa-times"></i>
                                 </button>
                             </div>
@@ -80,13 +81,13 @@ require_once 'components/sidebar.php';
                                 
                                 <div class="space-y-4">
                                     <div>
-                                        <label for="stationName" class="block text-sm font-medium text-gray-700">Station Name</label>
-                                        <input type="text" id="stationName" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                                        <label for="stationName" class="block text-sm font-medium text-admin-text-light">Station Name</label>
+                                        <input type="text" id="stationName" required class="admin-input mt-1 block w-full">
                                     </div>
                                     
                                     <div>
-                                        <label for="stationType" class="block text-sm font-medium text-gray-700">Station Type</label>
-                                        <select id="stationType" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                                        <label for="stationType" class="block text-sm font-medium text-admin-text-light">Station Type</label>
+                                        <select id="stationType" required class="admin-input mt-1 block w-full">
                                             <option value="">Select Type</option>
                                             <option value="Gaming PC">Gaming PC</option>
                                             <option value="Console">Console</option>
@@ -96,13 +97,13 @@ require_once 'components/sidebar.php';
                                     </div>
                                     
                                     <div>
-                                        <label for="hourlyRate" class="block text-sm font-medium text-gray-700">Hourly Rate ($)</label>
-                                        <input type="number" id="hourlyRate" min="0" step="0.01" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                                        <label for="hourlyRate" class="block text-sm font-medium text-admin-text-light">Hourly Rate (LKR)</label>
+                                        <input type="number" id="hourlyRate" min="0" step="0.01" required class="admin-input mt-1 block w-full">
                                     </div>
                                     
                                     <div>
-                                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
-                                        <select id="status" required class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                                        <label for="status" class="block text-sm font-medium text-admin-text-light">Status</label>
+                                        <select id="status" required class="admin-input mt-1 block w-full">
                                             <option value="active">Active</option>
                                             <option value="maintenance">Maintenance</option>
                                             <option value="inactive">Inactive</option>
@@ -110,14 +111,14 @@ require_once 'components/sidebar.php';
                                     </div>
                                     
                                     <div>
-                                        <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                                        <textarea id="description" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-purple-500 focus:border-purple-500"></textarea>
+                                        <label for="description" class="block text-sm font-medium text-admin-text-light">Description</label>
+                                        <textarea id="description" rows="3" class="admin-input mt-1 block w-full"></textarea>
                                     </div>
                                 </div>
                                 
                                 <div class="flex justify-end space-x-3 mt-6">
-                                    <button type="button" id="cancelBtn" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">Cancel</button>
-                                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">Save Station</button>
+                                    <button type="button" id="cancelBtn" class="px-4 py-2 border border-admin-purple rounded-md text-admin-text-muted hover:bg-admin-dark">Cancel</button>
+                                    <button type="submit" class="px-4 py-2 bg-admin-purple text-white rounded-md hover:bg-pink-600">Save Station</button>
                                 </div>
                             </form>
                         </div>

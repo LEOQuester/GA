@@ -17,22 +17,40 @@ function initializeDataTable() {
         responsive: true,
         pageLength: 10,
         order: [[0, 'asc'], [1, 'asc']], // Sort by date, then time
+        language: {
+            search: "🔍 Search Arena Periods:",
+            lengthMenu: "Show _MENU_ periods per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ unavailable periods",
+            infoEmpty: "No unavailable periods found",
+            infoFiltered: "(filtered from _MAX_ total periods)",
+            paginate: {
+                first: "⏮️ First",
+                last: "⏭️ Last",
+                next: "▶️ Next",
+                previous: "◀️ Previous"
+            },
+            emptyTable: "🎮 No arena maintenance periods scheduled!",
+            zeroRecords: "🔍 No matching periods found. Try a different search!",
+            loadingRecords: "⚡ Loading maintenance periods...",
+            processing: "🎮 Processing arena schedule..."
+        },
+        dom: '<"flex flex-col md:flex-row md:justify-between md:items-center mb-6"<"mb-4 md:mb-0"l><"mb-4 md:mb-0"f>>rtip',
         columns: [
             { 
                 data: 'unavailable_date',
-                title: 'Date',
+                title: '<i class="fas fa-calendar mr-2"></i>Date',
                 render: function(data) {
-                    return new Date(data).toLocaleDateString('en-US', {
+                    return `<span class="text-cyan-300">${new Date(data).toLocaleDateString('en-US', {
                         weekday: 'short',
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'
-                    });
+                    })}</span>`;
                 }
             },
             { 
                 data: null,
-                title: 'Time Period',
+                title: '<i class="fas fa-clock mr-2"></i>Time Period',
                 render: function(data, type, row) {
                     const startTime = new Date(`2000-01-01 ${row.start_time}`).toLocaleTimeString('en-US', {
                         hour: 'numeric',
@@ -44,39 +62,39 @@ function initializeDataTable() {
                         minute: '2-digit',
                         hour12: true
                     });
-                    return `${startTime} - ${endTime}`;
+                    return `<span class="text-green-300">${startTime}</span><br><small class="text-gray-400">to ${endTime}</small>`;
                 }
             },
             { 
                 data: 'reason',
-                title: 'Reason',
+                title: '<i class="fas fa-exclamation-triangle mr-2"></i>Reason',
                 render: function(data) {
-                    return `<span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">${data}</span>`;
+                    return `<span class="text-gray-300">${data}</span>`;
                 }
             },
             { 
                 data: 'created_at',
-                title: 'Created',
+                title: '<i class="fas fa-calendar-plus mr-2"></i>Created',
                 render: function(data) {
-                    return new Date(data).toLocaleDateString('en-US', {
+                    return `<span class="text-purple-300">${new Date(data).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         hour: 'numeric',
                         minute: '2-digit'
-                    });
+                    })}</span>`;
                 }
             },
             {
                 data: null,
-                title: 'Actions',
+                title: '<i class="fas fa-cog mr-2"></i>Actions',
                 orderable: false,
                 render: function(data, type, row) {
                     return `
-                        <div class="flex space-x-2">
-                            <button onclick="editSlot(${row.id})" class="text-blue-600 hover:text-blue-800" title="Edit">
+                        <div class="flex space-x-1">
+                            <button onclick="editSlot(${row.id})" class="admin-action-btn admin-action-edit" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="deleteSlot(${row.id})" class="text-red-600 hover:text-red-800" title="Delete">
+                            <button onclick="deleteSlot(${row.id})" class="admin-action-btn admin-action-delete" title="Delete">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>

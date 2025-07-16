@@ -212,8 +212,50 @@ function updateBookingStatus($booking_id, $status)
     $result = executeQuery($sql);
 
     if ($result) {
+        error_log("G-Arena: Successfully updated booking {$booking_id} to status {$status}");
+        
+        // Send email notification for confirmed or cancelled bookings
+        if ($status === 'confirmed' || $status === 'cancelled') {
+            try {
+                // Check if email service files exist before attempting to send
+                $email_service_path = __DIR__ . '/email_service.php';
+                $email_config_path = __DIR__ . '/../config/email_config.php';
+                
+                if (file_exists($email_service_path) && file_exists($email_config_path)) {
+                    require_once $email_service_path;
+                    
+                    // Check if email configuration is properly set up
+                    if (defined('SMTP_USERNAME') && SMTP_USERNAME !== 'your-email@gmail.com') {
+                        $emailService = new EmailService();
+                        
+                        if ($status === 'confirmed') {
+                            $emailResult = $emailService->sendBookingConfirmation($booking_id);
+                        } else if ($status === 'cancelled') {
+                            $emailResult = $emailService->sendBookingCancellation($booking_id);
+                        }
+                        
+                        // Log email result but don't fail the booking update if email fails
+                        if (isset($emailResult) && !$emailResult['success']) {
+                            error_log("G-Arena: Email notification failed for booking {$booking_id}: " . $emailResult['message']);
+                        } else if (isset($emailResult) && $emailResult['success']) {
+                            error_log("G-Arena: Email notification sent successfully for booking {$booking_id}");
+                        }
+                    } else {
+                        error_log("G-Arena: Email not configured - skipping email notification for booking {$booking_id}");
+                    }
+                } else {
+                    error_log("G-Arena: Email service files not found - skipping email notification for booking {$booking_id}");
+                }
+            } catch (Exception $e) {
+                error_log("G-Arena: Email service error for booking {$booking_id}: " . $e->getMessage());
+            } catch (Error $e) {
+                error_log("G-Arena: Email service fatal error for booking {$booking_id}: " . $e->getMessage());
+            }
+        }
+        
         return ['success' => true, 'message' => 'Booking status updated successfully'];
     } else {
+        error_log("G-Arena: Failed to update booking {$booking_id} status to {$status}");
         return ['success' => false, 'message' => 'Failed to update booking status'];
     }
 }

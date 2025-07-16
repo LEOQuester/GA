@@ -18,37 +18,55 @@ function initializeDataTable() {
         responsive: true,
         pageLength: 10,
         order: [[3, 'desc']], // Sort by date descending
+        language: {
+            search: "🔍 Search Gaming Sessions:",
+            lengthMenu: "Show _MENU_ sessions per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ gaming sessions",
+            infoEmpty: "No gaming sessions found",
+            infoFiltered: "(filtered from _MAX_ total sessions)",
+            paginate: {
+                first: "⏮️ First",
+                last: "⏭️ Last",
+                next: "▶️ Next", 
+                previous: "◀️ Previous"
+            },
+            emptyTable: "🎮 No gaming sessions found in the arena database!",
+            zeroRecords: "🔍 No matching gaming sessions found. Adjust your filters!",
+            loadingRecords: "⚡ Loading gaming sessions...",
+            processing: "🎮 Processing arena data..."
+        },
+        dom: '<"flex flex-col md:flex-row md:justify-between md:items-center mb-6"<"mb-4 md:mb-0"l><"mb-4 md:mb-0"f>>rtip',
         columns: [
-            { data: 'booking_reference', title: 'Reference' },
+            { data: 'booking_reference', title: '<i class="fas fa-hashtag mr-2"></i>Reference' },
             { 
                 data: null,
-                title: 'User',
+                title: '<i class="fas fa-user mr-2"></i>User',
                 render: function(data, type, row) {
-                    return `<div><span class="font-medium">${row.user_email}</span></div>`;
+                    return `<div><span class="font-medium text-cyan-300">${row.user_email}</span></div>`;
                 }
             },
             { 
                 data: null,
-                title: 'Station',
+                title: '<i class="fas fa-gamepad mr-2"></i>Station',
                 render: function(data, type, row) {
-                    return `<div><span class="font-medium">${row.station_name}</span><br><small class="text-gray-500">${row.station_type}</small></div>`;
+                    return `<div><span class="font-medium text-purple-300">${row.station_name}</span><br><small class="text-gray-400">${row.station_type}</small></div>`;
                 }
             },
             { 
                 data: 'booking_date',
-                title: 'Date',
+                title: '<i class="fas fa-calendar mr-2"></i>Date',
                 render: function(data) {
-                    return new Date(data).toLocaleDateString('en-US', {
+                    return `<span class="text-cyan-300">${new Date(data).toLocaleDateString('en-US', {
                         weekday: 'short',
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'
-                    });
+                    })}</span>`;
                 }
             },
             { 
                 data: null,
-                title: 'Time',
+                title: '<i class="fas fa-clock mr-2"></i>Time',
                 render: function(data, type, row) {
                     const startTime = new Date(`2000-01-01 ${row.start_time}`).toLocaleTimeString('en-US', {
                         hour: 'numeric',
@@ -60,44 +78,44 @@ function initializeDataTable() {
                         minute: '2-digit',
                         hour12: true
                     });
-                    return `${startTime} - ${endTime}`;
+                    return `<span class="text-green-300">${startTime}</span><br><small class="text-gray-400">to ${endTime}</small>`;
                 }
             },
             { 
                 data: 'total_hours',
-                title: 'Duration',
+                title: '<i class="fas fa-hourglass mr-2"></i>Duration',
                 render: function(data) {
-                    return parseFloat(data).toFixed(1) + 'h';
+                    return `<span class="text-yellow-300 font-semibold">${parseFloat(data).toFixed(1)}h</span>`;
                 }
             },
             { 
                 data: 'total_amount',
-                title: 'Amount',
+                title: '<i class="fas fa-coins mr-2"></i>Amount',
                 render: function(data) {
-                    return '$' + parseFloat(data).toFixed(2);
+                    return `<span class="text-green-400 font-bold">LKR ${parseFloat(data).toFixed(2)}</span>`;
                 }
             },
             { 
                 data: 'status',
-                title: 'Status',
+                title: '<i class="fas fa-flag mr-2"></i>Status',
                 render: function(data) {
-                    const statusColors = {
-                        'pending': 'bg-yellow-100 text-yellow-800',
-                        'confirmed': 'bg-blue-100 text-blue-800',
-                        'completed': 'bg-green-100 text-green-800',
-                        'cancelled': 'bg-red-100 text-red-800'
+                    const statusStyles = {
+                        'pending': 'admin-status-badge admin-status-pending',
+                        'confirmed': 'admin-status-badge admin-status-confirmed',
+                        'completed': 'admin-status-badge admin-status-completed',
+                        'cancelled': 'admin-status-badge admin-status-cancelled'
                     };
-                    return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColors[data]}">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
+                    return `<span class="${statusStyles[data]}">${data.toUpperCase()}</span>`;
                 }
             },
             { 
                 data: null,
-                title: 'Actions',
+                title: '<i class="fas fa-cog mr-2"></i>Actions',
                 orderable: false,
                 render: function(data, type, row) {
                     return `
-                        <div class="flex space-x-2">
-                            <button onclick="viewBooking(${row.id})" class="text-blue-600 hover:text-blue-800" title="View Details">
+                        <div class="flex space-x-1">
+                            <button onclick="viewBooking(${row.id})" class="admin-action-btn admin-action-view" title="View Details">
                                 <i class="fas fa-eye"></i>
                             </button>
                             ${row.status === 'pending' ? `
@@ -241,7 +259,7 @@ function viewBooking(id) {
             <div><strong>Date:</strong> ${bookingDate}</div>
             <div><strong>Time:</strong> ${startTime} - ${endTime}</div>
             <div><strong>Duration:</strong> ${parseFloat(currentBooking.total_hours).toFixed(1)} hours</div>
-            <div><strong>Amount:</strong> $${parseFloat(currentBooking.total_amount).toFixed(2)}</div>
+            <div><strong>Amount:</strong> LKR ${parseFloat(currentBooking.total_amount).toFixed(2)}</div>
             <div><strong>Booked On:</strong> ${createdAt}</div>
         </div>
         ${currentBooking.notes ? `<div class="mt-4"><strong>Notes:</strong><br><p class="mt-1 p-2 bg-gray-50 rounded">${currentBooking.notes}</p></div>` : ''}

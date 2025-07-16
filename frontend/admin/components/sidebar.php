@@ -5,7 +5,7 @@ function renderAdminSidebar($currentPage = '') {
     <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0" id="sidebar">
         <div class="flex items-center justify-center h-16 bg-gray-900 border-b border-gray-700">
             <div class="flex items-center">
-                <i class="fas fa-gamepad text-purple-400 text-2xl mr-2"></i>
+                <img src="../../logo/logo.png" alt="G-Arena Logo" class="h-8 w-auto mr-2">
                 <span class="text-white text-xl font-bold">G-Arena Admin</span>
             </div>
         </div>
@@ -51,27 +51,6 @@ function renderAdminSidebar($currentPage = '') {
                         <span class="ml-3">Reports & Analytics</span>
                     </a>
                 </li>
-                
-                <!-- Divider -->
-                <li class="pt-4 mt-4 space-y-2 border-t border-gray-700">
-                    <span class="text-gray-500 text-xs uppercase tracking-wider">System</span>
-                </li>
-                
-                <!-- Users -->
-                <li>
-                    <a href="users.php" class="flex items-center p-2 text-gray-300 rounded-lg hover:bg-gray-700 group <?= $currentPage === 'users' ? 'bg-gray-700 text-white' : '' ?>">
-                        <i class="fas fa-users w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white <?= $currentPage === 'users' ? 'text-white' : '' ?>"></i>
-                        <span class="ml-3">Users</span>
-                    </a>
-                </li>
-                
-                <!-- Settings -->
-                <li>
-                    <a href="settings.php" class="flex items-center p-2 text-gray-300 rounded-lg hover:bg-gray-700 group <?= $currentPage === 'settings' ? 'bg-gray-700 text-white' : '' ?>">
-                        <i class="fas fa-cog w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white <?= $currentPage === 'settings' ? 'text-white' : '' ?>"></i>
-                        <span class="ml-3">Settings</span>
-                    </a>
-                </li>
             </ul>
             
             <!-- Logout Button -->
@@ -111,31 +90,31 @@ function renderAdminTopbar($title = 'Admin Panel', $breadcrumbs = []) {
     global $admin;
 ?>
     <!-- Top bar -->
-    <div class="bg-white shadow-sm border-b border-gray-200">
+    <div class="bg-admin-dark shadow-sm border-b border-admin-purple/20">
         <div class="px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <!-- Mobile menu button -->
-                    <button type="button" class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500" onclick="toggleSidebar()">
+                    <button type="button" class="lg:hidden inline-flex items-center justify-center p-2 rounded-md text-admin-text-muted hover:text-admin-text-light hover:bg-admin-darker focus:outline-none focus:ring-2 focus:ring-inset focus:ring-admin-purple" onclick="toggleSidebar()">
                         <i class="fas fa-bars w-6 h-6"></i>
                     </button>
                     
                     <div class="ml-4 lg:ml-0">
-                        <h1 class="text-2xl font-bold text-gray-900"><?= htmlspecialchars($title) ?></h1>
+                        <h1 class="text-2xl font-bold text-admin-text-light"><?= htmlspecialchars($title) ?></h1>
                         <?php if (!empty($breadcrumbs)): ?>
                             <nav class="flex" aria-label="Breadcrumb">
                                 <ol class="inline-flex items-center space-x-1 md:space-x-3">
                                     <?php foreach ($breadcrumbs as $index => $breadcrumb): ?>
                                         <li class="inline-flex items-center">
                                             <?php if ($index > 0): ?>
-                                                <i class="fas fa-chevron-right w-3 h-3 text-gray-400 mx-1"></i>
+                                                <i class="fas fa-chevron-right w-3 h-3 text-admin-text-muted mx-1"></i>
                                             <?php endif; ?>
                                             <?php if (isset($breadcrumb['url'])): ?>
-                                                <a href="<?= htmlspecialchars($breadcrumb['url']) ?>" class="text-sm font-medium text-gray-500 hover:text-gray-700">
+                                                <a href="<?= htmlspecialchars($breadcrumb['url']) ?>" class="text-sm font-medium text-admin-text-muted hover:text-admin-text-light">
                                                     <?= htmlspecialchars($breadcrumb['name']) ?>
                                                 </a>
                                             <?php else: ?>
-                                                <span class="text-sm font-medium text-gray-500">
+                                                <span class="text-sm font-medium text-admin-text-muted">
                                                     <?= htmlspecialchars($breadcrumb['name']) ?>
                                                 </span>
                                             <?php endif; ?>
@@ -148,8 +127,8 @@ function renderAdminTopbar($title = 'Admin Panel', $breadcrumbs = []) {
                 </div>
                 
                 <div class="flex items-center space-x-4">
-                    <span class="text-sm text-gray-500">Welcome, <?= htmlspecialchars($admin['username']) ?></span>
-                    <div class="h-8 w-8 bg-purple-600 rounded-full flex items-center justify-center">
+                    <span class="text-sm text-admin-text-muted">Welcome, <?= htmlspecialchars($admin['username']) ?></span>
+                    <div class="h-8 w-8 bg-admin-purple rounded-full flex items-center justify-center">
                         <span class="text-white text-sm font-medium"><?= strtoupper(substr($admin['username'], 0, 1)) ?></span>
                     </div>
                 </div>

@@ -15,43 +15,68 @@ function initializeDataTable() {
         responsive: true,
         pageLength: 10,
         order: [[0, 'asc']], // Sort by station name
+        language: {
+            search: "🔍 Search Gaming Stations:",
+            lengthMenu: "Show _MENU_ stations per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ gaming stations",
+            infoEmpty: "No gaming stations found",
+            infoFiltered: "(filtered from _MAX_ total stations)",
+            paginate: {
+                first: "⏮️ First",
+                last: "⏭️ Last",
+                next: "▶️ Next",
+                previous: "◀️ Previous"
+            },
+            emptyTable: "🎮 No gaming stations in the arena yet!",
+            zeroRecords: "🔍 No matching gaming stations found. Try a different search!",
+            loadingRecords: "⚡ Loading gaming stations...",
+            processing: "🎮 Processing station data..."
+        },
+        dom: '<"flex flex-col md:flex-row md:justify-between md:items-center mb-6"<"mb-4 md:mb-0"l><"mb-4 md:mb-0"f>>rtip',
         columns: [
-            { data: 'station_name', title: 'Station Name' },
-            { data: 'station_type', title: 'Type' },
+            { data: 'station_name', title: '<i class="fas fa-gamepad mr-2"></i>Station Name' },
+            { 
+                data: 'station_type', 
+                title: '<i class="fas fa-tag mr-2"></i>Type',
+                render: function(data) {
+                    return `<span class="text-purple-300 font-semibold">${data}</span>`;
+                }
+            },
             { 
                 data: 'hourly_rate',
-                title: 'Hourly Rate',
+                title: '<i class="fas fa-coins mr-2"></i>Hourly Rate',
                 render: function(data) {
-                    return '$' + parseFloat(data).toFixed(2);
+                    return `<span class="text-green-400 font-bold">LKR ${parseFloat(data).toFixed(2)}</span>`;
                 }
             },
             { 
                 data: 'status',
-                title: 'Status',
+                title: '<i class="fas fa-power-off mr-2"></i>Status',
                 render: function(data) {
-                    const statusColors = {
-                        'active': 'bg-green-100 text-green-800',
-                        'maintenance': 'bg-yellow-100 text-yellow-800',
-                        'inactive': 'bg-red-100 text-red-800'
+                    const statusStyles = {
+                        'active': 'admin-status-badge admin-status-active',
+                        'maintenance': 'admin-status-badge admin-status-pending',
+                        'inactive': 'admin-status-badge admin-status-inactive'
                     };
-                    return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColors[data]}">${data.charAt(0).toUpperCase() + data.slice(1)}</span>`;
+                    return `<span class="${statusStyles[data]}">${data.toUpperCase()}</span>`;
                 }
             },
             { 
                 data: 'description',
-                title: 'Description',
+                title: '<i class="fas fa-info-circle mr-2"></i>Description',
                 render: function(data) {
-                    return data ? (data.length > 50 ? data.substring(0, 50) + '...' : data) : 'No description';
+                    const desc = data ? (data.length > 50 ? data.substring(0, 50) + '...' : data) : 'No description';
+                    return `<span class="text-cyan-300">${desc}</span>`;
                 }
             },
             { 
                 data: null,
-                title: 'Actions',
+                title: '<i class="fas fa-cog mr-2"></i>Actions',
                 orderable: false,
                 render: function(data, type, row) {
                     return `
-                        <div class="flex space-x-2">
-                            <button onclick="editStation(${row.id})" class="text-blue-600 hover:text-blue-800" title="Edit">
+                        <div class="flex space-x-1">
+                            <button onclick="editStation(${row.id})" class="admin-action-btn admin-action-edit" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button onclick="deleteStation(${row.id})" class="text-red-600 hover:text-red-800" title="Delete">

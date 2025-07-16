@@ -1,0 +1,531 @@
+/* Admin Gaming Theme CSS */
+:root {
+    --admin-primary: #D946EF; /* Pink/magenta for admin */
+    --admin-secondary: #C026D3;
+    --admin-accent: #A21CAF;
+    --admin-dark: #1A1A2E;
+    --admin-darker: #16213E;
+    --admin-card: rgba(26, 26, 46, 0.8);
+    --admin-text-light: #E2E8F0;
+    --admin-text-muted: #94A3B8;
+    --admin-border: rgba(212, 70, 239, 0.3);
+}
+
+/* Admin Body Background Enhancement */
+body.admin-theme {
+    background: linear-gradient(135deg, #0F0F23 0%, #1A1A2E 50%, #16213E 100%);
+    background-size: 400% 400%;
+    animation: adminGradientShift 12s ease infinite;
+    min-height: 100vh;
+}
+
+@keyframes adminGradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Enhanced DataTable Gaming Styles for Admin */
+.dataTables_wrapper {
+    background: transparent !important;
+    color: var(--admin-text-light) !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+    color: var(--admin-text-light) !important;
+}
+
+.dataTables_wrapper .dataTables_length label,
+.dataTables_wrapper .dataTables_filter label {
+    color: var(--admin-text-light) !important;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(212, 70, 239, 0.5);
+}
+
+.dataTables_wrapper .dataTables_length select,
+.dataTables_wrapper .dataTables_filter input {
+    background: rgba(26, 26, 46, 0.9) !important;
+    border: 2px solid var(--admin-border) !important;
+    color: white !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    margin: 0 8px !important;
+    transition: all 0.3s ease !important;
+}
+
+.dataTables_wrapper .dataTables_length select:focus,
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--admin-primary) !important;
+    box-shadow: 0 0 20px rgba(212, 70, 239, 0.6) !important;
+    outline: none !important;
+    transform: scale(1.02);
+}
+
+/* Admin Pagination Styling */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(22, 33, 62, 0.8) 100%) !important;
+    border: 2px solid var(--admin-border) !important;
+    color: var(--admin-text-light) !important;
+    border-radius: 10px !important;
+    margin: 0 3px !important;
+    padding: 10px 16px !important;
+    transition: all 0.3s ease !important;
+    font-weight: 600;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%) !important;
+    border-color: var(--admin-primary) !important;
+    color: white !important;
+    box-shadow: 0 0 15px rgba(212, 70, 239, 0.7) !important;
+    transform: translateY(-2px);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-accent) 100%) !important;
+    border-color: var(--admin-primary) !important;
+    color: white !important;
+    box-shadow: 0 0 20px rgba(212, 70, 239, 0.8) !important;
+    transform: scale(1.05);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.disabled {
+    background: rgba(26, 26, 46, 0.3) !important;
+    border-color: rgba(212, 70, 239, 0.1) !important;
+    color: rgba(226, 232, 240, 0.3) !important;
+    cursor: not-allowed;
+}
+
+/* Admin Table Enhancements */
+.admin-table table {
+    background: transparent !important;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(212, 70, 239, 0.3);
+}
+
+.admin-table th {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 50%, var(--admin-accent) 100%) !important;
+    color: white !important;
+    padding: 18px 16px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1.2px !important;
+    border: none !important;
+    position: relative;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.admin-table th:first-child {
+    border-top-left-radius: 15px;
+}
+
+.admin-table th:last-child {
+    border-top-right-radius: 15px;
+}
+
+.admin-table th::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.5) 50%, transparent 100%);
+}
+
+.admin-table td {
+    padding: 16px !important;
+    color: var(--admin-text-light) !important;
+    border-bottom: 1px solid rgba(212, 70, 239, 0.2) !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-top: none !important;
+    background: rgba(26, 26, 46, 0.7) !important;
+    transition: all 0.3s ease !important;
+}
+
+.admin-table tbody tr:hover td {
+    background: rgba(212, 70, 239, 0.15) !important;
+    box-shadow: inset 0 0 25px rgba(212, 70, 239, 0.3) !important;
+    transform: scale(1.01);
+}
+
+/* Ensure DataTable hover effects work properly */
+.dataTables_wrapper .admin-table tbody tr:hover td {
+    background: rgba(212, 70, 239, 0.15) !important;
+    box-shadow: inset 0 0 25px rgba(212, 70, 239, 0.3) !important;
+    transform: scale(1.01);
+    color: inherit !important;
+}
+
+/* Override any white backgrounds on hover */
+.admin-table tbody tr:hover td * {
+    background: transparent !important;
+}
+
+.admin-table tbody tr:hover {
+    background: transparent !important;
+}
+
+.admin-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 15px;
+}
+
+.admin-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 15px;
+}
+
+/* Admin Status Badge Styling */
+.admin-status-badge {
+    padding: 6px 14px;
+    border-radius: 25px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: inline-block;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.admin-status-pending {
+    background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+}
+
+.admin-status-confirmed {
+    background: linear-gradient(135deg, #06B6D4 0%, #0891B2 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+}
+
+.admin-status-completed {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+}
+
+.admin-status-cancelled {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+}
+
+.admin-status-active {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+}
+
+.admin-status-inactive {
+    background: linear-gradient(135deg, #6B7280 0%, #4B5563 100%);
+    color: white;
+    box-shadow: 0 0 15px rgba(107, 114, 128, 0.5);
+}
+
+/* DataTable Search and Info Styling */
+.dataTables_wrapper .dataTables_filter {
+    text-align: right;
+    margin-bottom: 25px;
+}
+
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 25px;
+}
+
+.dataTables_wrapper .dataTables_info {
+    padding-top: 25px;
+    color: var(--admin-text-light) !important;
+    font-style: italic;
+    text-shadow: 0 0 10px rgba(212, 70, 239, 0.3);
+}
+
+.dataTables_wrapper .dataTables_paginate {
+    padding-top: 25px;
+}
+
+/* No data message styling */
+.dataTables_empty {
+    text-align: center !important;
+    padding: 50px !important;
+    color: var(--admin-text-light) !important;
+    font-style: italic;
+    background: rgba(212, 70, 239, 0.1) !important;
+    font-size: 16px;
+}
+
+/* Action Button Styling */
+.admin-action-btn {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    margin: 0 2px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.admin-action-edit {
+    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+    color: white;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+.admin-action-edit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(59, 130, 246, 0.7);
+}
+
+.admin-action-delete {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+    color: white;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+}
+
+.admin-action-delete:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.7);
+}
+
+.admin-action-view {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+.admin-action-view:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
+}
+
+/* Card Styling */
+.admin-card {
+    background: var(--admin-card);
+    border: 2px solid var(--admin-border);
+    border-radius: 16px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 25px rgba(212, 70, 239, 0.4);
+    transition: all 0.3s ease;
+}
+
+.admin-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 35px rgba(212, 70, 239, 0.6);
+    border-color: var(--admin-primary);
+}
+
+/* Override white backgrounds globally */
+.bg-white {
+    background: var(--admin-card) !important;
+    color: var(--admin-text-light) !important;
+}
+
+/* Text color overrides */
+.text-gray-800,
+.text-gray-700,
+.text-gray-600 {
+    color: var(--admin-text-light) !important;
+}
+
+.text-gray-500,
+.text-gray-400 {
+    color: var(--admin-text-muted) !important;
+}
+
+/* Admin text utility classes */
+.text-admin-text-light {
+    color: var(--admin-text-light);
+}
+
+.text-admin-text-muted {
+    color: var(--admin-text-muted);
+}
+
+/* Icon color overrides */
+.text-purple-600 {
+    color: var(--admin-primary) !important;
+}
+
+.text-pink-400 {
+    color: #F472B6 !important;
+}
+
+/* Modal Styling */
+.modal-content {
+    background: var(--admin-card) !important;
+    border: 2px solid var(--admin-border);
+    border-radius: 16px;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 30px rgba(212, 70, 239, 0.6);
+}
+
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(5px);
+}
+
+/* Form Controls */
+.admin-input {
+    background: rgba(26, 26, 46, 0.8);
+    border: 2px solid var(--admin-border);
+    color: white;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.admin-input:focus {
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 15px rgba(212, 70, 239, 0.4);
+    outline: none;
+}
+
+/* Override default form styling */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+select,
+textarea {
+    background: rgba(26, 26, 46, 0.8) !important;
+    border: 2px solid var(--admin-border) !important;
+    color: white !important;
+    border-radius: 10px !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--admin-primary) !important;
+    box-shadow: 0 0 15px rgba(212, 70, 239, 0.4) !important;
+    outline: none !important;
+}
+
+/* Select dropdown styling */
+select option {
+    background: var(--admin-darker) !important;
+    color: white !important;
+}
+
+.admin-btn {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.admin-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(212, 70, 239, 0.6);
+}
+
+/* Button color overrides */
+.bg-purple-600,
+.bg-purple-700 {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%) !important;
+}
+
+.bg-green-600,
+.bg-green-700 {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+}
+
+.bg-red-600,
+.bg-red-700 {
+    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%) !important;
+}
+
+.bg-blue-600,
+.bg-blue-700 {
+    background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%) !important;
+}
+
+/* Border overrides */
+.border-gray-300 {
+    border-color: var(--admin-border) !important;
+}
+
+/* Hover state overrides */
+.hover\\:bg-gray-50:hover {
+    background: rgba(212, 70, 239, 0.1) !important;
+}
+
+.hover\\:text-gray-600:hover {
+    color: white !important;
+}
+
+/* Responsive Enhancements */
+@media (max-width: 768px) {
+    .admin-table th,
+    .admin-table td {
+        padding: 12px 8px !important;
+        font-size: 14px;
+    }
+    
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 15px;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: 8px 12px !important;
+        margin: 0 1px !important;
+    }
+}
+
+/* Table Loading Animation */
+.dataTables_processing {
+    background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%) !important;
+    color: white !important;
+    border-radius: 10px !important;
+    border: none !important;
+    box-shadow: 0 0 20px rgba(212, 70, 239, 0.6) !important;
+}
+
+/* Override any badge styling in reason column */
+#slotsTable td span {
+    padding: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    box-shadow: none !important;
+    display: inline !important;
+    text-shadow: none !important;
+}
+
+/* Specific override for unavailable slots table reason column */
+#slotsTable tbody tr td:nth-child(3) span {
+    background: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    color: #cbd5e1 !important;
+    font-weight: normal !important;
+    font-size: inherit !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}

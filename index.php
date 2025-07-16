@@ -23,8 +23,8 @@
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <h1 class="text-2xl font-bold text-purple-600">
-                            <i class="fas fa-gamepad mr-2"></i>G-Arena
+                        <h1 class="text-2xl font-bold text-purple-600 flex items-center">
+                            <img src="logo/logo.png" alt="G-Arena Logo" class="h-8 w-auto mr-2">G-Arena
                         </h1>
                     </div>
                 </div>
@@ -115,7 +115,7 @@
                         <h4 class="text-xl font-semibold mb-2">PC Gaming Stations</h4>
                         <p class="text-gray-600 mb-4">High-performance gaming PCs with latest graphics cards</p>
                         <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-purple-600">$12-15/hr</span>
+                            <span class="text-2xl font-bold text-purple-600">LKR 1200-1500/hr</span>
                             <span class="text-green-600 font-semibold">Available</span>
                         </div>
                     </div>
@@ -129,7 +129,7 @@
                         <h4 class="text-xl font-semibold mb-2">Console Gaming</h4>
                         <p class="text-gray-600 mb-4">PlayStation 5 and Xbox Series X with 4K displays</p>
                         <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-purple-600">$10/hr</span>
+                            <span class="text-2xl font-bold text-purple-600">LKR 1000/hr</span>
                             <span class="text-green-600 font-semibold">Available</span>
                         </div>
                     </div>
@@ -143,7 +143,7 @@
                         <h4 class="text-xl font-semibold mb-2">VR Gaming</h4>
                         <p class="text-gray-600 mb-4">Immersive VR experience with Meta Quest 3</p>
                         <div class="flex justify-between items-center">
-                            <span class="text-2xl font-bold text-purple-600">$20/hr</span>
+                            <span class="text-2xl font-bold text-purple-600">LKR 2000/hr</span>
                             <span class="text-green-600 font-semibold">Available</span>
                         </div>
                     </div>

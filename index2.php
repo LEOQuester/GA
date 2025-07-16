@@ -1,9 +1,14 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-//define('USER_SESSION_NAME', 'user');
-session_start();
-$loggedInUser = $_SESSION[USER_SESSION_NAME]['username'] ?? null;
+require_once 'backend/config/config.php';
+require_once 'backend/includes/auth.php';
+
+$loggedInUser = null;
+if (isUserLoggedIn()) {
+    $userInfo = getUserInfo();
+    $loggedInUser = $userInfo['username'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">

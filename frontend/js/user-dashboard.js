@@ -39,58 +39,87 @@ function initializeDataTables() {
         responsive: true,
         pageLength: 10,
         order: [[2, 'desc']], // Sort by date descending
+        language: {
+            search: "🔍 Search Gaming Sessions:",
+            lengthMenu: "Show _MENU_ sessions per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ gaming sessions",
+            infoEmpty: "No gaming sessions found",
+            infoFiltered: "(filtered from _MAX_ total sessions)",
+            paginate: {
+                first: "⏮️ First",
+                last: "⏭️ Last", 
+                next: "▶️ Next",
+                previous: "◀️ Previous"
+            },
+            emptyTable: "🎮 No gaming sessions booked yet! Ready to start your arena journey?",
+            zeroRecords: "🔍 No matching gaming sessions found. Try adjusting your search!",
+            loadingRecords: "⚡ Loading your gaming history...",
+            processing: "🎮 Processing..."
+        },
+        dom: '<"flex flex-col md:flex-row md:justify-between md:items-center mb-6"<"mb-4 md:mb-0"l><"mb-4 md:mb-0"f>>rtip',
         columns: [
-            { data: 'booking_reference', title: 'Reference' },
+            { data: 'booking_reference', title: '<i class="fas fa-hashtag mr-2"></i>Reference' },
             { 
                 data: null,
-                title: 'Station',
+                title: '<i class="fas fa-gamepad mr-2"></i>Station',
                 render: function(data, type, row) {
-                    return `${row.station_name} (${row.station_type})`;
+                    return `<span class="font-semibold text-purple-300">${row.station_name}</span><br><small class="text-gray-400">${row.station_type}</small>`;
                 }
             },
-            { data: 'booking_date', title: 'Date' },
+            { 
+                data: 'booking_date', 
+                title: '<i class="fas fa-calendar mr-2"></i>Date',
+                render: function(data) {
+                    return `<span class="text-cyan-300">${new Date(data).toLocaleDateString()}</span>`;
+                }
+            },
             { 
                 data: null,
-                title: 'Time',
+                title: '<i class="fas fa-clock mr-2"></i>Time',
                 render: function(data, type, row) {
-                    return `${row.start_time} - ${row.end_time}`;
+                    return `<span class="text-green-300">${row.start_time}</span><br><small class="text-gray-400">to ${row.end_time}</small>`;
                 }
             },
             { 
                 data: 'total_hours',
-                title: 'Duration',
+                title: '<i class="fas fa-hourglass mr-2"></i>Duration',
                 render: function(data) {
-                    return data + ' hours';
+                    return `<span class="text-yellow-300 font-semibold">${data}h</span>`;
                 }
             },
             { 
                 data: 'total_amount',
-                title: 'Amount',
+                title: '<i class="fas fa-coins mr-2"></i>Amount',
                 render: function(data) {
-                    return '$' + parseFloat(data).toFixed(2);
+                    return `<span class="text-green-400 font-bold">LKR ${parseFloat(data).toFixed(2)}</span>`;
                 }
             },
             { 
                 data: 'status',
-                title: 'Status',
+                title: '<i class="fas fa-flag mr-2"></i>Status',
                 render: function(data) {
-                    const statusColors = {
-                        'pending': 'bg-yellow-100 text-yellow-800',
-                        'confirmed': 'bg-blue-100 text-blue-800',
-                        'completed': 'bg-green-100 text-green-800',
-                        'cancelled': 'bg-red-100 text-red-800'
+                    const statusStyles = {
+                        'pending': 'status-badge status-pending',
+                        'confirmed': 'status-badge status-confirmed', 
+                        'completed': 'status-badge status-completed',
+                        'cancelled': 'status-badge status-cancelled'
                     };
-                    return `<span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColors[data] || statusColors.pending}">${data}</span>`;
+                    return `<span class="${statusStyles[data] || statusStyles.pending}">${data.toUpperCase()}</span>`;
                 }
             },
             { 
                 data: 'created_at',
-                title: 'Booked On',
+                title: '<i class="fas fa-calendar-plus mr-2"></i>Booked On',
                 render: function(data) {
-                    return new Date(data).toLocaleDateString();
+                    return `<span class="text-purple-300">${new Date(data).toLocaleDateString()}</span>`;
                 }
             }
-        ]
+        ],
+        drawCallback: function() {
+            // Add custom styling after each draw
+            $('#userBookingsTable_wrapper .dataTables_info').addClass('text-gaming-light');
+            $('#userBookingsTable_wrapper .dataTables_paginate .paginate_button').addClass('gaming-paginate-btn');
+        }
     });
 }
 
@@ -109,7 +138,7 @@ async function loadUserStats() {
             $('#totalHours').text(totalHours.toFixed(1));
             
             const totalSpent = completedBookings.reduce((sum, b) => sum + parseFloat(b.total_amount), 0);
-            $('#totalSpent').text('$' + totalSpent.toFixed(2));
+            $('#totalAmount').text(totalSpent.toFixed(2));
         }
     } catch (error) {
         console.error('Error loading user stats:', error);
@@ -142,7 +171,7 @@ function populateStationSelect() {
     stationsData.forEach(station => {
         const $option = $('<option>', {
             value: station.id,
-            text: `${station.station_name} (${station.station_type}) - $${station.hourly_rate}/hr`
+            text: `${station.station_name} (${station.station_type}) - LKR ${station.hourly_rate}/hr`
         });
         
         // Safely store the station data using jQuery's data method
@@ -278,7 +307,7 @@ function initializeBookingForm() {
     // Form submission
     $('#bookingForm').submit(function(e) {
         e.preventDefault();
-        submitBooking();
+        showPaymentModal();
     });
 }
 
@@ -287,7 +316,7 @@ function showStationInfo() {
     if (!selectedStation) return;
     
     $('#stationTypeInfo').text(selectedStation.station_type);
-    $('#stationRateInfo').text('$' + parseFloat(selectedStation.hourly_rate).toFixed(2));
+    $('#stationRateInfo').text('LKR ' + parseFloat(selectedStation.hourly_rate).toFixed(2));
     $('#stationDescInfo').text(selectedStation.description || 'No description available');
     $('#stationInfo').removeClass('hidden');
 }
@@ -322,8 +351,11 @@ async function checkAvailability() {
 
 // Show availability information to user
 function showAvailabilityInfo(unavailableSlots) {
+    // Always remove existing availability info first
+    $('#stationInfo .availability-info').remove();
+    
     if (unavailableSlots && unavailableSlots.length > 0) {
-        let availabilityHtml = '<div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">';
+        let availabilityHtml = '<div class="availability-info mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">';
         availabilityHtml += '<h4 class="font-semibold text-yellow-800 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Unavailable Times Today:</h4>';
         availabilityHtml += '<ul class="text-sm text-yellow-700">';
         
@@ -343,13 +375,8 @@ function showAvailabilityInfo(unavailableSlots) {
         
         availabilityHtml += '</ul></div>';
         
-        // Remove existing availability info and add new one
-        $('#stationInfo .availability-info').remove();
+        // Add new availability info with proper class
         $('#stationInfo').append(availabilityHtml);
-        $('.availability-info').addClass('availability-info');
-    } else {
-        // Remove availability info if no conflicts
-        $('#stationInfo .availability-info').remove();
     }
 }
 
@@ -391,7 +418,7 @@ function updateBookingSummary() {
     const totalAmount = durationHours * parseFloat(selectedStation.hourly_rate);
     
     $('#summaryDuration').text(`${durationHours.toFixed(1)} hours`);
-    $('#summaryAmount').text('$' + totalAmount.toFixed(2));
+    $('#summaryAmount').text('LKR ' + totalAmount.toFixed(2));
     $('#bookingSummary').removeClass('hidden');
 }
 
@@ -515,4 +542,203 @@ function showAlert(message, type = 'info') {
             $(this).remove();
         });
     }, 5000);
+}
+
+// Payment Modal Functions
+function showPaymentModal() {
+    // Validate form first
+    const startTimeValue = startTimePicker.selectedDates[0];
+    const endTimeValue = endTimePicker.selectedDates[0];
+    
+    if (!$('#stationSelect').val() || !$('#bookingDate').val() || !startTimeValue || !endTimeValue) {
+        showAlert('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    if (endTimeValue <= startTimeValue) {
+        showAlert('End time must be after start time', 'error');
+        return;
+    }
+    
+    // Check for time conflicts with unavailable slots
+    const startTime = startTimeValue.getHours().toString().padStart(2, '0') + ':' + 
+                     startTimeValue.getMinutes().toString().padStart(2, '0') + ':00';
+    const endTime = endTimeValue.getHours().toString().padStart(2, '0') + ':' + 
+                   endTimeValue.getMinutes().toString().padStart(2, '0') + ':00';
+    
+    if (window.unavailableSlots && hasTimeConflict(startTime, endTime, window.unavailableSlots)) {
+        showAlert('Selected time conflicts with unavailable slots. Please choose a different time.', 'error');
+        return;
+    }
+    
+    // Business hours validation (9 AM to 8 PM)
+    const startHour = startTimeValue.getHours();
+    const endHour = endTimeValue.getHours();
+    const endMinute = endTimeValue.getMinutes();
+    
+    if (startHour < 9 || endHour > 20 || (endHour === 20 && endMinute > 0)) {
+        showAlert('Booking times must be between 9:00 AM and 8:00 PM', 'error');
+        return;
+    }
+    
+    // Populate payment modal with booking details
+    const selectedStationText = $('#stationSelect option:selected').text();
+    const bookingDate = new Date($('#bookingDate').val()).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    const startTimeText = startTimeValue.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+    const endTimeText = endTimeValue.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+    });
+    
+    // Calculate duration and amount
+    const durationMs = endTimeValue - startTimeValue;
+    const durationHours = durationMs / (1000 * 60 * 60);
+    const hourlyRate = selectedStation ? parseFloat(selectedStation.hourly_rate) : 0;
+    const totalAmount = durationHours * hourlyRate;
+    
+    // Update modal content
+    $('#paymentStation').text(selectedStationText);
+    $('#paymentDate').text(bookingDate);
+    $('#paymentTime').text(`${startTimeText} - ${endTimeText}`);
+    $('#paymentDuration').text(`${durationHours.toFixed(1)} hours`);
+    $('#paymentAmount').text(`LKR ${totalAmount.toFixed(2)}`);
+    
+    // Show modal
+    $('#paymentModal').removeClass('hidden');
+    
+    // Focus on card number field
+    setTimeout(() => {
+        $('#cardNumber').focus();
+    }, 300);
+}
+
+// Close payment modal
+function closePaymentModal() {
+    $('#paymentModal').addClass('hidden');
+    // Clear form
+    $('#paymentForm')[0].reset();
+}
+
+// Format card number input
+function formatCardNumber(input) {
+    // Remove all non-digit characters
+    let value = input.replace(/\D/g, '');
+    
+    // Add spaces every 4 digits
+    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+    
+    return value;
+}
+
+// Format expiry date input
+function formatExpiryDate(input) {
+    // Remove all non-digit characters
+    let value = input.replace(/\D/g, '');
+    
+    // Add slash after 2 digits
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    
+    return value;
+}
+
+// Initialize payment modal event handlers
+$(document).ready(function() {
+    // Close modal handlers
+    $('#closePaymentModal, #cancelPayment').click(function() {
+        closePaymentModal();
+    });
+    
+    // Click outside modal to close
+    $('#paymentModal').click(function(e) {
+        if (e.target === this) {
+            closePaymentModal();
+        }
+    });
+    
+    // Format card number input
+    $('#cardNumber').on('input', function() {
+        const formatted = formatCardNumber($(this).val());
+        $(this).val(formatted);
+    });
+    
+    // Format expiry date input
+    $('#expiryDate').on('input', function() {
+        const formatted = formatExpiryDate($(this).val());
+        $(this).val(formatted);
+    });
+    
+    // Only allow numbers for CVV
+    $('#cvv').on('input', function() {
+        $(this).val($(this).val().replace(/\D/g, ''));
+    });
+    
+    // Payment form submission
+    $('#paymentForm').submit(function(e) {
+        e.preventDefault();
+        processPayment();
+    });
+});
+
+// Process payment and submit booking
+async function processPayment() {
+    // Validate payment form
+    const cardNumber = $('#cardNumber').val().replace(/\s/g, '');
+    const cardHolder = $('#cardHolder').val().trim();
+    const expiryDate = $('#expiryDate').val();
+    const cvv = $('#cvv').val();
+    
+    if (!cardNumber || cardNumber.length < 13) {
+        showAlert('Please enter a valid card number', 'error');
+        return;
+    }
+    
+    if (!cardHolder) {
+        showAlert('Please enter the cardholder name', 'error');
+        return;
+    }
+    
+    if (!expiryDate || expiryDate.length < 5) {
+        showAlert('Please enter a valid expiry date', 'error');
+        return;
+    }
+    
+    if (!cvv || cvv.length < 3) {
+        showAlert('Please enter a valid CVV', 'error');
+        return;
+    }
+    
+    // Show processing state
+    $('#paymentButtonText').text('Processing...');
+    $('#processPayment').prop('disabled', true);
+    
+    // Simulate payment processing delay
+    setTimeout(async () => {
+        try {
+            // Submit the actual booking
+            await submitBooking();
+            
+            // Close payment modal
+            closePaymentModal();
+            
+        } catch (error) {
+            console.error('Payment processing error:', error);
+            showAlert('Payment processing failed. Please try again.', 'error');
+        } finally {
+            // Reset button state
+            $('#paymentButtonText').text('Process Payment');
+            $('#processPayment').prop('disabled', false);
+        }
+    }, 2000); // 2 second delay to simulate payment processing
 }

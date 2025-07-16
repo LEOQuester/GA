@@ -20,10 +20,11 @@ require_once 'components/sidebar.php';
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.tailwindcss.min.css">
+    <link rel="stylesheet" href="assets/css/admin-gaming-theme.css">
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 admin-theme">
     <div class="flex h-screen">
         <?php renderAdminSidebar('dashboard'); ?>
         
@@ -38,61 +39,61 @@ require_once 'components/sidebar.php';
             <main class="flex-1 overflow-y-auto p-6">
         <!-- Dashboard Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="admin-card p-6">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-blue-100 mr-4">
-                        <i class="fas fa-desktop text-blue-600 text-xl"></i>
+                    <div class="p-3 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 mr-4">
+                        <i class="fas fa-desktop text-white text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Total Stations</p>
-                        <p class="text-2xl font-bold" id="totalStations">0</p>
+                        <p class="text-sm text-admin-text-muted">Total Stations</p>
+                        <p class="text-2xl font-bold text-admin-text-light" id="totalStations">0</p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="admin-card p-6">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-green-100 mr-4">
-                        <i class="fas fa-calendar-check text-green-600 text-xl"></i>
+                    <div class="p-3 rounded-full bg-gradient-to-br from-green-600 to-green-800 mr-4">
+                        <i class="fas fa-calendar-check text-white text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Total Bookings</p>
-                        <p class="text-2xl font-bold" id="totalBookings">0</p>
+                        <p class="text-sm text-admin-text-muted">Total Bookings</p>
+                        <p class="text-2xl font-bold text-admin-text-light" id="totalBookings">0</p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="admin-card p-6">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-yellow-100 mr-4">
-                        <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                    <div class="p-3 rounded-full bg-gradient-to-br from-yellow-600 to-yellow-800 mr-4">
+                        <i class="fas fa-clock text-white text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Pending Bookings</p>
-                        <p class="text-2xl font-bold" id="pendingBookings">0</p>
+                        <p class="text-sm text-admin-text-muted">Pending Bookings</p>
+                        <p class="text-2xl font-bold text-admin-text-light" id="pendingBookings">0</p>
                     </div>
                 </div>
             </div>
             
-            <div class="bg-white rounded-lg shadow p-6">
+            <div class="admin-card p-6">
                 <div class="flex items-center">
-                    <div class="p-3 rounded-full bg-purple-100 mr-4">
-                        <i class="fas fa-dollar-sign text-purple-600 text-xl"></i>
+                    <div class="p-3 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 mr-4">
+                        <i class="fas fa-dollar-sign text-white text-xl"></i>
                     </div>
                     <div>
-                        <p class="text-sm text-gray-600">Revenue Today</p>
-                        <p class="text-2xl font-bold" id="todayRevenue">$0</p>
+                        <p class="text-sm text-admin-text-muted">Revenue Today</p>
+                        <p class="text-2xl font-bold text-admin-text-light" id="todayRevenue">LKR 0</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Overview Section -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-                <i class="fas fa-tachometer-alt text-purple-600 mr-2"></i>Dashboard Overview
+        <div class="admin-card p-6">
+            <h2 class="text-2xl font-semibold text-admin-text-light mb-4">
+                <i class="fas fa-tachometer-alt text-pink-400 mr-2"></i>Dashboard Overview
             </h2>
-            <p class="text-gray-600 mb-6">Welcome to the Gaming Arena Admin Panel. Use the sidebar navigation to manage your gaming arena.</p>
+            <p class="text-admin-text-muted mb-6">Welcome to the Gaming Arena Admin Panel. Use the sidebar navigation to manage your gaming arena.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <a href="stations.php" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg p-4 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
@@ -154,7 +155,7 @@ require_once 'components/sidebar.php';
                         $('#totalStations').text(data.metrics.total_stations || 0);
                         $('#totalBookings').text(data.metrics.total_bookings || 0);
                         $('#pendingBookings').text(data.metrics.pending_bookings || 0);
-                        $('#todayRevenue').text('$' + (data.metrics.today_revenue || 0).toFixed(2));
+                        $('#todayRevenue').text('LKR ' + (data.metrics.today_revenue || 0).toFixed(2));
                     }
                 })
                 .catch(error => console.error('Error loading stats:', error));

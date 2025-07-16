@@ -28,7 +28,7 @@ async function loadAnalytics() {
 
 // Update metric cards
 function updateMetricCards(metrics) {
-    $('#totalRevenue').text('$' + parseFloat(metrics.total_revenue || 0).toFixed(2));
+    $('#totalRevenue').text('LKR ' + parseFloat(metrics.total_revenue || 0).toFixed(2));
     $('#totalBookings').text(metrics.total_bookings || 0);
     $('#totalHours').text((metrics.total_hours || 0) + 'h');
     $('#avgSession').text(parseFloat(metrics.avg_session || 0).toFixed(1) + 'h');
@@ -228,7 +228,7 @@ function updateTopStations(stations) {
                 </div>
                 <div class="text-right">
                     <p class="font-bold text-gray-800">${station.bookings} bookings</p>
-                    <p class="text-sm text-green-600">$${parseFloat(station.revenue).toFixed(2)}</p>
+                    <p class="text-sm text-green-600">LKR ${parseFloat(station.revenue).toFixed(2)}</p>
                 </div>
             </div>
         `);
@@ -268,7 +268,7 @@ function updateRecentBookings(bookings) {
                     <span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColors[booking.status] || statusColors.pending}">
                         ${booking.status}
                     </span>
-                    <p class="text-sm font-medium text-gray-800 mt-1">$${parseFloat(booking.total_amount).toFixed(2)}</p>
+                    <p class="text-sm font-medium text-gray-800 mt-1">LKR ${parseFloat(booking.total_amount).toFixed(2)}</p>
                 </div>
             </div>
         `);

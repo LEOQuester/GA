@@ -43,7 +43,7 @@ function initializeDataTables() {
                 data: 'hourly_rate', 
                 title: 'Hourly Rate',
                 render: function(data) {
-                    return '$' + parseFloat(data).toFixed(2);
+                    return 'LKR ' + parseFloat(data).toFixed(2);
                 }
             },
             { 
@@ -115,7 +115,7 @@ function initializeDataTables() {
                 data: 'total_amount',
                 title: 'Amount',
                 render: function(data) {
-                    return '$' + parseFloat(data).toFixed(2);
+                    return 'LKR ' + parseFloat(data).toFixed(2);
                 }
             },
             { 
@@ -183,7 +183,7 @@ async function loadDashboardStats() {
             const today = new Date().toISOString().split('T')[0];
             const todayBookings = bookings.filter(b => b.booking_date === today && b.status !== 'cancelled');
             const todayRevenue = todayBookings.reduce((sum, b) => sum + parseFloat(b.total_amount), 0);
-            $('#todayRevenue').text('$' + todayRevenue.toFixed(2));
+            $('#todayRevenue').text('LKR ' + todayRevenue.toFixed(2));
         }
     } catch (error) {
         console.error('Error loading dashboard stats:', error);
