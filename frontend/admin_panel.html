@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Arena - Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            color: #000;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(255, 235, 59, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 235, 59, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255, 235, 59, 0.2);
+        }
+
+        .stat-card {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(255, 235, 59, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffeb3b;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #ffffff;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-group label {
+            color: #ffeb3b;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        select, input {
+            padding: 10px 15px;
+            border: 2px solid #ffeb3b;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: #ffffff;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #ffc107;
+            box-shadow: 0 0 10px rgba(255, 235, 59, 0.3);
+        }
+
+        button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 235, 59, 0.4);
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 235, 59, 0.2);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 235, 59, 0.2);
+        }
+
+        th {
+            background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+            color: #000;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: rgba(255, 235, 59, 0.1);
+            transition: background 0.3s ease;
+        }
+
+        .status-success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        .status-failed {
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #ffeb3b;
+            font-size: 1.2rem;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #ffffff;
+            opacity: 0.7;
+        }
+
+        .food-items {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .food-item {
+            background: rgba(255, 235, 59, 0.1);
+            margin: 2px 0;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .receipt-number {
+            font-weight: bold;
+            color: #ffeb3b;
+        }
+
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .export-btn:hover {
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎮 Gaming Arena Admin Panel 🍕</h1>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="card stat-card">
+                <div class="stat-number" id="totalOrders">0</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-number" id="totalRevenue">LKR 0</div>
+                <div class="stat-label">Total Revenue</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-number" id="successfulOrders">0</div>
+                <div class="stat-label">Successful Orders</div>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-number" id="avgOrderValue">LKR 0</div>
+                <div class="stat-label">Average Order Value</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📊 Order Reports</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="reportType">Report Type:</label>
+                    <select id="reportType">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="dateFrom">From:</label>
+                    <input type="date" id="dateFrom">
+                </div>
+                <div class="control-group">
+                    <label for="dateTo">To:</label>
+                    <input type="date" id="dateTo">
+                </div>
+                <button onclick="loadReports()">Generate Report</button>
+                <button class="export-btn" onclick="exportToCSV()">Export CSV</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Order Details</h2>
+            <div class="table-container">
+                <div id="loading" class="loading" style="display: none;">Loading orders...</div>
+                <table id="ordersTable" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Receipt #</th>
+                            <th>Customer Name</th>
+                            <th>Location</th>
+                            <th>Items Ordered</th>
+                            <th>Total Amount</th>
+                            <th>Order Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                    </tbody>
+                </table>
+                <div id="noData" class="no-data" style="display: none;">No orders found for the selected period.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allOrders = [];
+        let filteredOrders = [];
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            setDefaultDates();
+            loadReports();
+        });
+
+        function setDefaultDates() {
+            const today = new Date();
+            const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+            
+            document.getElementById('dateFrom').value = weekAgo.toISOString().split('T')[0];
+            document.getElementById('dateTo').value = today.toISOString().split('T')[0];
+        }
+
+        async function loadReports() {
+            showLoading();
+            
+            try {
+                const response = await fetch('../backend/api/get_orders.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        reportType: document.getElementById('reportType').value,
+                        dateFrom: document.getElementById('dateFrom').value,
+                        dateTo: document.getElementById('dateTo').value
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    allOrders = data.orders;
+                    filteredOrders = allOrders;
+                    updateDashboard();
+                    displayOrders();
+                } else {
+                    console.error('Error loading orders:', data.message);
+                    showNoData();
+                }
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                showNoData();
+            }
+        }
+
+        function updateDashboard() {
+            const totalOrders = filteredOrders.length;
+            const totalRevenue = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total_amount), 0);
+            const successfulOrders = filteredOrders.filter(order => order.status === 'success').length;
+            const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+            document.getElementById('totalOrders').textContent = totalOrders;
+            document.getElementById('totalRevenue').textContent = `LKR ${totalRevenue.toFixed(2)}`;
+            document.getElementById('successfulOrders').textContent = successfulOrders;
+            document.getElementById('avgOrderValue').textContent = `LKR ${avgOrderValue.toFixed(2)}`;
+        }
+
+        function displayOrders() {
+            const tableBody = document.getElementById('ordersTableBody');
+            tableBody.innerHTML = '';
+
+            if (filteredOrders.length === 0) {
+                showNoData();
+                return;
+            }
+
+            filteredOrders.forEach(order => {
+                const row = document.createElement('tr');
+                
+                const foodItems = JSON.parse(order.food_items);
+                const itemsHtml = foodItems.map(item => 
+                    `<div class="food-item">${item.name} (${item.quantity}x) - LKR ${item.subtotal.toFixed(2)}</div>`
+                ).join('');
+
+                row.innerHTML = `
+                    <td class="receipt-number">#${order.receipt_number}</td>
+                    <td>${order.card_holder_name}</td>
+                    <td>Floor ${order.floor_number}, Room ${order.room_number}</td>
+                    <td class="food-items">${itemsHtml}</td>
+                    <td>LKR ${parseFloat(order.total_amount).toFixed(2)}</td>
+                    <td>${formatDate(order.order_date)}</td>
+                    <td class="status-success">Successful</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+
+            showTable();
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('ordersTable').style.display = 'none';
+            document.getElementById('noData').style.display = 'none';
+        }
+
+        function showTable() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('ordersTable').style.display = 'table';
+            document.getElementById('noData').style.display = 'none';
+        }
+
+        function showNoData() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('ordersTable').style.display = 'none';
+            document.getElementById('noData').style.display = 'block';
+        }
+
+        function exportToCSV() {
+            if (filteredOrders.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            let csv = 'Receipt Number,Customer Name,Floor,Room,Items,Total Amount,Order Date,Status\n';
+            
+            filteredOrders.forEach(order => {
+                const foodItems = JSON.parse(order.food_items);
+                const itemsStr = foodItems.map(item => `${item.name} (${item.quantity}x)`).join('; ');
+                
+                csv += `${order.receipt_number},"${order.card_holder_name}",${order.floor_number},${order.room_number},"${itemsStr}",${order.total_amount},"${order.order_date}",Successful\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `gaming_arena_orders_${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Sample data for demonstration (remove this when implementing with real PHP backend)
+        function loadSampleData() {
+            const sampleOrders = [
+                {
+                    receipt_number: 1,
+                    card_holder_name: "John Doe",
+                    floor_number: "2",
+                    room_number: "A101",
+                    food_items: JSON.stringify([
+                        {id: 1, name: "Gamer Burger", price: 1200, quantity: 2, subtotal: 2400},
+                        {id: 3, name: "Energy Fries", price: 800, quantity: 1, subtotal: 800}
+                    ]),
+                    total_amount: 3200,
+                    order_date: "2024-01-15 14:30:00",
+                    status: "success"
+                },
+                {
+                    receipt_number: 2,
+                    card_holder_name: "Jane Smith",
+                    floor_number: "3",
+                    room_number: "B205",
+                    food_items: JSON.stringify([
+                        {id: 2, name: "Power Pizza", price: 3500, quantity: 1, subtotal: 3500},
+                        {id: 8, name: "Epic Smoothie", price: 500, quantity: 2, subtotal: 1000}
+                    ]),
+                    total_amount: 4500,
+                    order_date: "2024-01-15 15:45:00",
+                    status: "success"
+                },
+                {
+                    receipt_number: 3,
+                    card_holder_name: "Mike Johnson",
+                    floor_number: "1",
+                    room_number: "C303",
+                    food_items: JSON.stringify([
+                        {id: 4, name: "Victory Wings", price: 1400, quantity: 1, subtotal: 1400},
+                        {id: 6, name: "Legendary Nachos", price: 1600, quantity: 1, subtotal: 1600}
+                    ]),
+                    total_amount: 3000,
+                    order_date: "2024-01-15 16:20:00",
+                    status: "success"
+                }
+            ];
+
+            allOrders = sampleOrders;
+            filteredOrders = allOrders;
+            updateDashboard();
+            displayOrders();
+        }
+
+        // Load sample data for demonstration
+        setTimeout(loadSampleData, 500);
+    </script>
+</body>
+</html>

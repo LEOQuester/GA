@@ -19,8 +19,7 @@ if (!$input) {
 }
 
 $username = $input['username'] ?? '';
-$password = $input['password'] ?? '';
-
+c:\xampp\htdocs\Gaming-Arena\backend\process_order.php
 if (empty($username) || empty($password)) {
     echo json_encode(['success' => false, 'message' => 'Username and password are required']);
     exit;

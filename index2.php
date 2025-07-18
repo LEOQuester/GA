@@ -34,6 +34,9 @@ if (isUserLoggedIn()) {
         </div>
         <nav>
             <a href="#">Home</a>
+            <a href="frontend/food.html">Food order</a>
+            <a href="frontend/tournment.html">Tournament</a>
+            <a href="frontend/shop.html">Shop</a>
             <a href="#services">Services</a>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
