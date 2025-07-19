@@ -65,7 +65,9 @@
                         <input id="username" name="username" type="text" required 
                                class="gaming-input w-full text-white placeholder-red-300" 
                                placeholder="Enter your admin username"
-                               style="border-color: rgba(255, 0, 102, 0.3); focus:border-color: #FF0066; focus:box-shadow: 0 0 15px rgba(255, 0, 102, 0.4);">
+                               style="border-color: rgba(255, 0, 102, 0.3);"
+                               onfocus="this.style.borderColor='#FF0066'; this.style.boxShadow='0 0 15px rgba(255, 0, 102, 0.4)'"
+                               onblur="this.style.borderColor='rgba(255, 0, 102, 0.3)'; this.style.boxShadow='none'"
                     </div>
                     <div class="relative">
                         <label for="password" class="block text-sm font-medium text-gaming-light mb-2">
@@ -74,7 +76,9 @@
                         <input id="password" name="password" type="password" required 
                                class="gaming-input w-full text-white placeholder-red-300" 
                                placeholder="Enter your security key"
-                               style="border-color: rgba(255, 0, 102, 0.3); focus:border-color: #FF0066; focus:box-shadow: 0 0 15px rgba(255, 0, 102, 0.4);">
+                               style="border-color: rgba(255, 0, 102, 0.3);"
+                               onfocus="this.style.borderColor='#FF0066'; this.style.boxShadow='0 0 15px rgba(255, 0, 102, 0.4)'"
+                               onblur="this.style.borderColor='rgba(255, 0, 102, 0.3)'; this.style.boxShadow='none'"
                     </div>
                 </div>
 

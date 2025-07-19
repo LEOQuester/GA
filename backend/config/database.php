@@ -4,7 +4,10 @@ require_once 'config.php';
 // Global database connection variable
 $connection = null;
 
-// Function to establish database connection
+/**
+ * Function to establish database connection
+ * @return mysqli|false Database connection resource
+ */
 function getDbConnection() {
     global $connection;
     

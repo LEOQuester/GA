@@ -79,6 +79,129 @@ $user = getUserInfo();
             font-weight: 600;
         }
         
+        /* Station Card Styles */
+        .station-card {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border: 2px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .station-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .station-card:hover {
+            border-color: var(--primary-purple);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.3);
+        }
+        
+        .station-card:hover::before {
+            opacity: 1;
+        }
+        
+        .station-card.selected {
+            border-color: var(--primary-purple);
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            box-shadow: 0 0 20px rgba(138, 43, 226, 0.4);
+        }
+        
+        .station-card.selected::before {
+            opacity: 1;
+        }
+        
+        .station-card-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .station-type-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-purple), #8B5CF6);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .station-price {
+            color: #10B981;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .station-status {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+        
+        .station-status.maintenance {
+            background: #F59E0B;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+        }
+        
+        .station-status.inactive {
+            background: #EF4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.6);
+        }
+        
+        .station-card.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(50%);
+        }
+        
+        .station-card.disabled:hover {
+            transform: none;
+            box-shadow: none;
+            border-color: #374151;
+        }
+        
+        .selected-indicator {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--primary-purple);
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        .station-card.selected .selected-indicator {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
         .dataTables_wrapper .dataTables_length select,
         .dataTables_wrapper .dataTables_filter input {
             background: rgba(34, 34, 51, 0.8) !important;
@@ -252,9 +375,6 @@ $user = getUserInfo();
             transform: translateY(-5px);
             box-shadow: 0 0 30px rgba(138, 43, 226, 0.6);
         }
-            transform: translateY(-5px);
-            box-shadow: 0 0 30px rgba(138, 43, 226, 0.6);
-        }
     </style>
 </head>
 <body class="bg-gaming-pattern min-h-screen">
@@ -345,16 +465,41 @@ $user = getUserInfo();
                 </h2>
                 
                 <form id="bookingForm" class="space-y-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="stationSelect" class="block text-sm font-medium text-gaming-light mb-2">
-                                <i class="fas fa-gamepad mr-2"></i>Choose Your Weapon
+                    <!-- Station Selection Cards -->
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="block text-lg font-medium text-gaming-light">
+                                <i class="fas fa-gamepad mr-2"></i>Choose Your Gaming Arsenal
                             </label>
-                            <select id="stationSelect" required class="gaming-input w-full text-white">
-                                <option value="">Select your gaming station...</option>
-                            </select>
+                            <div class="flex items-center space-x-4 text-sm">
+                                <span class="text-purple-300">
+                                    <i class="fas fa-mouse-pointer mr-1"></i>Click to select
+                                </span>
+                                <span class="text-green-300">
+                                    <i class="fas fa-users mr-1"></i>Multi-select for groups
+                                </span>
+                            </div>
                         </div>
                         
+                        <div id="stationCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                            <!-- Station cards will be dynamically loaded here -->
+                        </div>
+                        
+                        <div id="selectionSummary" class="hidden mt-4 p-4 bg-purple-900/30 border border-purple-500/50 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-purple-300">
+                                    <i class="fas fa-check-circle mr-2"></i>Selected: <span id="selectedCount">0</span> station(s)
+                                </span>
+                                <button type="button" id="clearSelection" class="text-red-400 hover:text-red-300 text-sm">
+                                    <i class="fas fa-times mr-1"></i>Clear All
+                                </button>
+                            </div>
+                            <div id="selectedStationsList" class="mt-2 text-sm"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Time and Date Selection -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="bookingDate" class="block text-sm font-medium text-gaming-light mb-2">
                                 <i class="fas fa-calendar mr-2"></i>Battle Date
@@ -396,9 +541,7 @@ $user = getUserInfo();
                                 <i class="fas fa-info-circle mr-1"></i>Must be after start time
                             </p>
                         </div>
-                    </div>
-                    
-                    <!-- Station Info Card -->
+                    </div>                    <!-- Station Info Card -->
                     <div id="stationInfo" class="hidden cyber-border p-6 rounded-lg">
                         <h3 class="font-bold text-purple-300 mb-4 text-lg">
                             <i class="fas fa-info-circle mr-2"></i>Station Arsenal

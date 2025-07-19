@@ -522,4 +522,121 @@ This is an automated message. Please do not reply to this email.
             return ['success' => false, 'message' => 'Email service error: ' . $e->getMessage()];
         }
     }
+
+    /**
+     * Send password reset email
+     */
+    public function sendPasswordResetEmail($email, $subject, $emailData)
+    {
+        $html_content = $this->getPasswordResetEmailTemplate($emailData);
+        $text_content = $this->getPasswordResetEmailText($emailData);
+
+        return $this->sendEmail(
+            $email,
+            $emailData['user_name'],
+            $subject,
+            $html_content,
+            $text_content
+        );
+    }
+
+    /**
+     * Get password reset email HTML template
+     */
+    private function getPasswordResetEmailTemplate($data)
+    {
+        return '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Password Reset - G-Arena Gaming Center</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #0a0a0a; margin: 0; padding: 0; }
+                .container { max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #e2e8f0; }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+                .header h1 { margin: 0; font-size: 28px; font-weight: bold; }
+                .content { padding: 40px 30px; }
+                .reset-card { background: #1e293b; border: 1px solid #3730a3; border-radius: 12px; padding: 30px; margin: 20px 0; text-align: center; }
+                .reset-button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+                .reset-button:hover { background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%); }
+                .warning { background: #7f1d1d; border: 1px solid #dc2626; border-radius: 8px; padding: 15px; margin: 20px 0; color: #fca5a5; }
+                .footer { background: #0f172a; padding: 20px; text-align: center; color: #64748b; font-size: 12px; }
+                .icon { font-size: 48px; margin-bottom: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <div class="icon">🎮</div>
+                    <h1>G-Arena Gaming Center</h1>
+                    <p>Password Reset Request</p>
+                </div>
+                
+                <div class="content">
+                    <h2>Hello ' . htmlspecialchars($data['user_name']) . '!</h2>
+                    
+                    <p>We received a request to reset the password for your G-Arena gaming account. No worries - it happens to the best of us!</p>
+                    
+                    <div class="reset-card">
+                        <h3>🔑 Reset Your Password</h3>
+                        <p>Click the button below to create a new password for your account:</p>
+                        <a href="' . htmlspecialchars($data['reset_link']) . '" class="reset-button">Reset My Password</a>
+                        <p><strong>This link will expire in ' . htmlspecialchars($data['expiry_time']) . '</strong></p>
+                    </div>
+                    
+                    <div class="warning">
+                        <strong>⚠️ Security Notice:</strong><br>
+                        If you didn\'t request this password reset, please ignore this email. Your account remains secure.
+                    </div>
+                    
+                    <p>If the button doesn\'t work, copy and paste this link into your browser:</p>
+                    <p style="word-break: break-all; color: #a78bfa;">' . htmlspecialchars($data['reset_link']) . '</p>
+                    
+                    <p>Ready to get back to gaming? We\'ll have you back in the arena in no time!</p>
+                    
+                    <p>Game on!<br>
+                    <strong>The G-Arena Team</strong></p>
+                </div>
+                
+                <div class="footer">
+                    <p>G-Arena Gaming Center | Premium Gaming Experience</p>
+                    <p>This email was sent because a password reset was requested for your account.</p>
+                </div>
+            </div>
+        </body>
+        </html>';
+    }
+
+    /**
+     * Get password reset email plain text version
+     */
+    private function getPasswordResetEmailText($data)
+    {
+        return "
+🎮 G-ARENA GAMING CENTER - PASSWORD RESET
+
+Hello " . $data['user_name'] . "!
+
+We received a request to reset the password for your G-Arena gaming account.
+
+RESET YOUR PASSWORD:
+Click this link to create a new password: " . $data['reset_link'] . "
+
+⚠️ IMPORTANT: This link will expire in " . $data['expiry_time'] . "
+
+SECURITY NOTICE:
+If you didn't request this password reset, please ignore this email. Your account remains secure.
+
+Ready to get back to gaming? We'll have you back in the arena in no time!
+
+Game on!
+The G-Arena Team
+
+---
+G-Arena Gaming Center | Premium Gaming Experience
+This email was sent because a password reset was requested for your account.
+        ";
+    }
 }

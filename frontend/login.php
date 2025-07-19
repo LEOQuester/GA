@@ -83,6 +83,11 @@
                         <input id="password" name="password" type="password" required 
                                class="gaming-input w-full text-white placeholder-purple-300" 
                                placeholder="Enter your password">
+                        <div class="text-right mt-2">
+                            <a href="#" id="forgotPasswordLink" class="text-sm text-purple-400 hover:text-purple-300 transition-colors duration-300">
+                                <i class="fas fa-question-circle mr-1"></i>Forgot password?
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -122,6 +127,59 @@
     </div>
     </div> <!-- End flex container -->
 
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="gaming-card max-w-md w-full mx-auto p-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold neon-text">
+                    <i class="fas fa-key mr-2"></i>Reset Password
+                </h3>
+                <button id="closeModal" class="text-gaming-light hover:text-white transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="forgotPasswordForm" class="space-y-4">
+                <div>
+                    <label for="resetEmail" class="block text-sm font-medium text-gaming-light mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email Address
+                    </label>
+                    <input id="resetEmail" name="email" type="email" required 
+                           class="gaming-input w-full text-white placeholder-purple-300" 
+                           placeholder="Enter your email address">
+                </div>
+                
+                <div>
+                    <label for="confirmResetEmail" class="block text-sm font-medium text-gaming-light mb-2">
+                        <i class="fas fa-envelope-open mr-2"></i>Confirm Email Address
+                    </label>
+                    <input id="confirmResetEmail" name="confirmEmail" type="email" required 
+                           class="gaming-input w-full text-white placeholder-purple-300" 
+                           placeholder="Confirm your email address">
+                </div>
+
+                <!-- Modal Alert Messages -->
+                <div id="modalErrorMessage" class="hidden gaming-alert border-red-500 bg-red-900/50 text-red-200 px-4 py-3 rounded-lg">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    <span></span>
+                </div>
+                <div id="modalSuccessMessage" class="hidden gaming-alert border-green-500 bg-green-900/50 text-green-200 px-4 py-3 rounded-lg">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span></span>
+                </div>
+
+                <div class="flex space-x-3">
+                    <button type="button" id="cancelReset" class="flex-1 px-4 py-2 border border-purple-600 text-purple-400 rounded-lg hover:bg-purple-600/20 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 gaming-btn">
+                        <i class="fas fa-paper-plane mr-2"></i>Send Reset Link
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -159,6 +217,117 @@
             } catch (error) {
                 errorDiv.querySelector('span').textContent = 'Connection error. Please try again.';
                 errorDiv.classList.remove('hidden');
+            }
+        });
+        
+        // Check for logout success message
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const logout = urlParams.get('logout');
+            
+            if (logout === 'success') {
+                const successDiv = document.getElementById('successMessage');
+                successDiv.querySelector('span').textContent = 'Logged out successfully! Ready for your next gaming session?';
+                successDiv.classList.remove('hidden');
+                
+                // Auto-hide the message after 5 seconds
+                setTimeout(() => {
+                    successDiv.classList.add('hidden');
+                }, 5000);
+                
+                // Clean up the URL without refreshing the page
+                const url = new URL(window.location);
+                url.searchParams.delete('logout');
+                window.history.replaceState({}, document.title, url);
+            }
+        });
+
+        // Forgot password modal handlers
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        const closeModal = document.getElementById('closeModal');
+        const cancelReset = document.getElementById('cancelReset');
+
+        // Open modal
+        forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            forgotPasswordModal.classList.remove('hidden');
+            document.getElementById('resetEmail').focus();
+        });
+
+        // Close modal function
+        function closeModalFunction() {
+            forgotPasswordModal.classList.add('hidden');
+            document.getElementById('forgotPasswordForm').reset();
+            document.getElementById('modalErrorMessage').classList.add('hidden');
+            document.getElementById('modalSuccessMessage').classList.add('hidden');
+        }
+
+        closeModal.addEventListener('click', closeModalFunction);
+        cancelReset.addEventListener('click', closeModalFunction);
+
+        // Close modal when clicking outside
+        forgotPasswordModal.addEventListener('click', function(e) {
+            if (e.target === forgotPasswordModal) {
+                closeModalFunction();
+            }
+        });
+
+        // Forgot password form handler
+        document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('resetEmail').value;
+            const confirmEmail = document.getElementById('confirmResetEmail').value;
+            
+            const modalErrorDiv = document.getElementById('modalErrorMessage');
+            const modalSuccessDiv = document.getElementById('modalSuccessMessage');
+            
+            // Hide previous messages
+            modalErrorDiv.classList.add('hidden');
+            modalSuccessDiv.classList.add('hidden');
+            
+            // Validate emails match
+            if (email !== confirmEmail) {
+                modalErrorDiv.querySelector('span').textContent = 'Email addresses do not match';
+                modalErrorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                modalErrorDiv.querySelector('span').textContent = 'Please enter a valid email address';
+                modalErrorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            try {
+                const response = await fetch('../backend/api/forgot_password.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    modalSuccessDiv.querySelector('span').textContent = data.message;
+                    modalSuccessDiv.classList.remove('hidden');
+                    setTimeout(() => {
+                        closeModalFunction();
+                    }, 3000);
+                } else {
+                    modalErrorDiv.querySelector('span').textContent = data.message;
+                    modalErrorDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                modalErrorDiv.querySelector('span').textContent = 'Failed to send reset email. Please try again.';
+                modalErrorDiv.classList.remove('hidden');
             }
         });
     </script>

@@ -1,744 +1,666 @@
-// User Dashboard JavaScript
-let userBookingsTable;
-let stationsData = [];
-let selectedStation = null;
-let startTimePicker, endTimePicker;
-
-// Initialize when page loads
 $(document).ready(function() {
-    initializeTabs();
-    initializeDataTables();
-    loadUserStats();
-    loadStations();
-    loadUserBookings();
-    initializeBookingForm();
-    initializeTimePickers();
-    initializeDatePicker();
+    console.log("User Dashboard JavaScript loaded");
+    
+    // Initialize dashboard
+    initializeDashboard();
+    
+    // Tab switching functionality
+    $('.tab-button').on('click', function() {
+        const targetTab = $(this).data('tab');
+        
+        // Update active tab button
+        $('.tab-button').removeClass('active tab-active');
+        $(this).addClass('active tab-active');
+        
+        // Switch tab content
+        $('.tab-content').addClass('hidden');
+        $(`#${targetTab}`).removeClass('hidden');
+        
+        if (targetTab === 'bookings') {
+            loadUserBookings();
+        }
+    });
+    
+    // Booking form submission
+    $('#bookingForm').on('submit', function(e) {
+        e.preventDefault();
+        processBooking();
+    });
+    
+    // Clear selection button
+    $(document).on('click', '#clearSelection', function() {
+        clearAllSelections();
+    });
+    
+    // Payment modal handlers
+    $('#closePaymentModal, #cancelPayment').on('click', function() {
+        $('#paymentModal').addClass('hidden');
+    });
+    
+    $('#paymentForm').on('submit', function(e) {
+        e.preventDefault();
+        processPayment();
+    });
+    
+    // Card number formatting
+    $('#cardNumber').on('input', function() {
+        let value = $(this).val().replace(/\s/g, '').replace(/[^0-9]/gi, '');
+        let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+        $(this).val(formattedValue);
+    });
+    
+    // Expiry date formatting
+    $('#expiryDate').on('input', function() {
+        let value = $(this).val().replace(/\D/g, '');
+        if (value.length >= 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+        $(this).val(value);
+    });
+    
+    // CVV number only
+    $('#cvv').on('input', function() {
+        $(this).val($(this).val().replace(/[^0-9]/g, ''));
+    });
 });
 
-// Tab functionality
-function initializeTabs() {
-    $('.tab-button').click(function() {
-        const tabName = $(this).data('tab');
-        
-        // Update active tab
-        $('.tab-button').removeClass('active border-purple-500 text-purple-600')
-                        .addClass('border-transparent text-gray-500');
-        $(this).addClass('active border-purple-500 text-purple-600')
-               .removeClass('border-transparent text-gray-500');
-        
-        // Show/hide content
-        $('.tab-content').addClass('hidden');
-        $(`#${tabName}`).removeClass('hidden');
+function initializeDashboard() {
+    console.log("Initializing dashboard...");
+    
+    // Load stations
+    loadStations();
+    
+    // Initialize date picker
+    const today = new Date();
+    const maxDate = new Date();
+    maxDate.setDate(today.getDate() + 30); // 30 days from today
+    
+    $('#bookingDate').attr('min', today.toISOString().split('T')[0]);
+    $('#bookingDate').attr('max', maxDate.toISOString().split('T')[0]);
+    
+    // Initialize time pickers
+    initializeTimePickers();
+    
+    // Load user stats
+    loadUserStats();
+    
+    console.log("Dashboard initialized successfully");
+}
+
+function loadStations() {
+    console.log("Loading stations...");
+    
+    $.ajax({
+        url: '../../backend/api/stations.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log("Stations loaded:", response);
+            if (response.success && response.data) {
+                populateStationCards(response.data);
+            } else {
+                console.error("Failed to load stations:", response.message);
+                showError("Failed to load gaming stations. Please refresh the page.");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error loading stations:", error);
+            console.error("Status:", status);
+            console.error("Response:", xhr.responseText);
+            showError("Error connecting to server. Please check your connection.");
+        }
     });
 }
 
-// Initialize DataTables
-function initializeDataTables() {
-    userBookingsTable = $('#userBookingsTable').DataTable({
-        responsive: true,
+function populateStationCards(stations) {
+    console.log("Populating station cards with data:", stations);
+    const container = $('#stationCards');
+    
+    if (!container.length) {
+        console.error("Station cards container not found!");
+        return;
+    }
+    
+    container.empty();
+    
+    if (!stations || stations.length === 0) {
+        container.html(`
+            <div class="col-span-full text-center py-8">
+                <div class="text-gray-400">
+                    <i class="fas fa-gamepad text-4xl mb-4"></i>
+                    <p>No gaming stations available at the moment.</p>
+                </div>
+            </div>
+        `);
+        return;
+    }
+    
+    stations.forEach(station => {
+        const isAvailable = station.status === 'active';
+        const statusClass = getStatusClass(station.status);
+        const statusText = getStatusText(station.status);
+        
+        const cardHtml = `
+            <div class="station-card ${!isAvailable ? 'disabled' : ''}" 
+                 data-station-id="${station.id}" 
+                 data-station-name="${station.station_name}"
+                 data-station-type="${station.station_type}"
+                 data-rate="${station.hourly_rate}">
+                
+                <div class="selected-indicator">
+                    <i class="fas fa-check"></i>
+                </div>
+                
+                <div class="station-status ${statusClass}"></div>
+                
+                <div class="station-card-content">
+                    <div class="station-type-badge">
+                        ${station.station_type}
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-white mb-2">
+                        ${station.station_name}
+                    </h3>
+                    
+                    <p class="text-gray-300 text-sm mb-3 line-clamp-2">
+                        ${station.description || 'Premium gaming experience awaits!'}
+                    </p>
+                    
+                    <div class="flex justify-between items-center">
+                        <div class="station-price">
+                            LKR ${parseFloat(station.hourly_rate).toFixed(2)}/hr
+                        </div>
+                        <div class="text-xs text-gray-400">
+                            <i class="fas fa-circle mr-1"></i>${statusText}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        container.append(cardHtml);
+    });
+    
+    // Add click handlers for station selection
+    $('.station-card:not(.disabled)').on('click', function() {
+        toggleStationSelection($(this));
+    });
+    
+    console.log(`Added ${stations.length} station cards to the page`);
+}
+
+function getStatusClass(status) {
+    switch(status) {
+        case 'active': return '';
+        case 'maintenance': return 'maintenance';
+        case 'inactive': return 'inactive';
+        default: return 'inactive';
+    }
+}
+
+function getStatusText(status) {
+    switch(status) {
+        case 'active': return 'Available';
+        case 'maintenance': return 'Maintenance';
+        case 'inactive': return 'Offline';
+        default: return 'Unknown';
+    }
+}
+
+function toggleStationSelection(card) {
+    const stationId = card.data('station-id');
+    const isSelected = card.hasClass('selected');
+    
+    if (isSelected) {
+        // Deselect
+        card.removeClass('selected');
+        console.log(`Deselected station ${stationId}`);
+    } else {
+        // Select
+        card.addClass('selected');
+        console.log(`Selected station ${stationId}`);
+    }
+    
+    updateSelectionSummary();
+    updateBookingSummary();
+}
+
+function updateSelectionSummary() {
+    const selectedCards = $('.station-card.selected');
+    const count = selectedCards.length;
+    
+    if (count > 0) {
+        $('#selectionSummary').removeClass('hidden');
+        $('#selectedCount').text(count);
+        
+        const stationsList = selectedCards.map(function() {
+            const name = $(this).data('station-name');
+            const rate = $(this).data('rate');
+            return `<span class="inline-block bg-purple-700/50 px-2 py-1 rounded text-xs mr-2 mb-1">
+                        ${name} - LKR ${parseFloat(rate).toFixed(2)}/hr
+                    </span>`;
+        }).get().join('');
+        
+        $('#selectedStationsList').html(stationsList);
+    } else {
+        $('#selectionSummary').addClass('hidden');
+    }
+}
+
+function clearAllSelections() {
+    $('.station-card.selected').removeClass('selected');
+    updateSelectionSummary();
+    updateBookingSummary();
+}
+
+function initializeTimePickers() {
+    // Start time picker
+    flatpickr("#startTime", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        minTime: "09:00",
+        maxTime: "20:00",
+        minuteIncrement: 30,
+        onChange: function(selectedDates, dateStr) {
+            updateEndTimeOptions();
+            updateBookingSummary();
+        }
+    });
+    
+    // End time picker
+    flatpickr("#endTime", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        minTime: "09:30",
+        maxTime: "20:00",
+        minuteIncrement: 30,
+        onChange: function(selectedDates, dateStr) {
+            updateBookingSummary();
+        }
+    });
+    
+    // Date change handler
+    $('#bookingDate').on('change', function() {
+        updateBookingSummary();
+    });
+}
+
+function updateEndTimeOptions() {
+    const startTime = $('#startTime').val();
+    if (!startTime) return;
+    
+    const [hours, minutes] = startTime.split(':').map(Number);
+    const startMinutes = hours * 60 + minutes + 30; // Add 30 minutes minimum
+    
+    const endHours = Math.floor(startMinutes / 60);
+    const endMins = startMinutes % 60;
+    
+    const minEndTime = String(endHours).padStart(2, '0') + ':' + String(endMins).padStart(2, '0');
+    
+    // Update the end time picker
+    const endTimePicker = document.querySelector("#endTime")._flatpickr;
+    if (endTimePicker) {
+        endTimePicker.set('minTime', minEndTime);
+        endTimePicker.set('maxTime', '23:00');
+    }
+}
+
+function updateBookingSummary() {
+    const selectedStations = $('.station-card.selected');
+    const date = $('#bookingDate').val();
+    const startTime = $('#startTime').val();
+    const endTime = $('#endTime').val();
+    
+    if (selectedStations.length > 0 && date && startTime && endTime) {
+        const duration = calculateDuration(startTime, endTime);
+        const totalAmount = calculateTotalAmount(selectedStations, duration);
+        
+        if (duration > 0) {
+            $('#bookingSummary').removeClass('hidden');
+            $('#summaryDuration').text(`${duration} hour${duration !== 1 ? 's' : ''}`);
+            $('#summaryAmount').text(`LKR ${totalAmount.toFixed(2)}`);
+        } else {
+            $('#bookingSummary').addClass('hidden');
+        }
+    } else {
+        $('#bookingSummary').addClass('hidden');
+    }
+}
+
+function calculateDuration(startTime, endTime) {
+    if (!startTime || !endTime) return 0;
+    
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+    
+    const startTotalMinutes = startHours * 60 + startMinutes;
+    const endTotalMinutes = endHours * 60 + endMinutes;
+    
+    if (endTotalMinutes <= startTotalMinutes) return 0;
+    
+    return (endTotalMinutes - startTotalMinutes) / 60;
+}
+
+function calculateTotalAmount(selectedStations, duration) {
+    let total = 0;
+    selectedStations.each(function() {
+        const rate = parseFloat($(this).data('rate'));
+        total += rate * duration;
+    });
+    return total;
+}
+
+function processBooking() {
+    const selectedStations = $('.station-card.selected');
+    
+    if (selectedStations.length === 0) {
+        showError("Please select at least one gaming station.");
+        return;
+    }
+    
+    const bookingData = {
+        booking_date: $('#bookingDate').val(),
+        start_time: $('#startTime').val(),
+        end_time: $('#endTime').val(),
+        notes: $('#notes').val(),
+        station_ids: []
+    };
+    
+    // Validate booking data
+    if (!bookingData.booking_date || !bookingData.start_time || !bookingData.end_time) {
+        showError("Please fill in all required fields.");
+        return;
+    }
+    
+    const duration = calculateDuration(bookingData.start_time, bookingData.end_time);
+    if (duration <= 0) {
+        showError("End time must be after start time.");
+        return;
+    }
+    
+    // Collect selected station IDs
+    selectedStations.each(function() {
+        bookingData.station_ids.push($(this).data('station-id'));
+    });
+    
+    // For payment modal display, we still need station details
+    const stationDetails = [];
+    selectedStations.each(function() {
+        stationDetails.push({
+            station_id: $(this).data('station-id'),
+            station_name: $(this).data('station-name'),
+            rate: $(this).data('rate')
+        });
+    });
+    
+    const totalAmount = calculateTotalAmount(selectedStations, duration);
+    
+    // Show payment modal
+    showPaymentModal(bookingData, stationDetails, duration, totalAmount);
+}
+
+function showPaymentModal(bookingData, stationDetails, duration, totalAmount) {
+    // Populate payment modal with booking details
+    const stationNames = stationDetails.map(s => s.station_name).join(', ');
+    $('#paymentStation').text(stationNames);
+    $('#paymentDate').text(bookingData.booking_date);
+    $('#paymentTime').text(`${bookingData.start_time} - ${bookingData.end_time}`);
+    $('#paymentDuration').text(`${duration} hour${duration !== 1 ? 's' : ''}`);
+    $('#paymentAmount').text(`LKR ${totalAmount.toFixed(2)}`);
+    
+    // Store booking data for payment processing
+    $('#paymentModal').data('bookingData', bookingData);
+    $('#paymentModal').removeClass('hidden');
+    
+    // Clear previous form data
+    $('#paymentForm')[0].reset();
+}
+
+function processPayment() {
+    const bookingData = $('#paymentModal').data('bookingData');
+    const paymentData = {
+        card_number: $('#cardNumber').val(),
+        card_holder: $('#cardHolder').val(),
+        expiry_date: $('#expiryDate').val(),
+        cvv: $('#cvv').val()
+    };
+    
+    // Validate payment data
+    if (!paymentData.card_number || !paymentData.card_holder || 
+        !paymentData.expiry_date || !paymentData.cvv) {
+        showError("Please fill in all payment details.");
+        return;
+    }
+    
+    // Disable payment button and show loading
+    const submitBtn = $('#processPayment');
+    const originalText = submitBtn.find('#paymentButtonText').text();
+    submitBtn.prop('disabled', true);
+    submitBtn.find('#paymentButtonText').text('Processing...');
+    
+    // Submit booking
+    $.ajax({
+        url: '../../backend/api/bookings.php',
+        method: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(bookingData),
+        success: function(response) {
+            console.log("Booking response:", response);
+            
+            // Parse response if it's a string
+            if (typeof response === 'string') {
+                try {
+                    response = JSON.parse(response);
+                } catch (e) {
+                    console.error("Failed to parse response:", response);
+                    showError("Invalid response from server. Please try again.");
+                    return;
+                }
+            }
+            
+            if (response.success) {
+                showSuccess("Booking confirmed! Your gaming session is ready.");
+                $('#paymentModal').addClass('hidden');
+                
+                // Reset form
+                $('#bookingForm')[0].reset();
+                clearAllSelections();
+                $('#bookingSummary').addClass('hidden');
+                
+                // Refresh bookings tab
+                loadUserBookings();
+                loadUserStats();
+            } else {
+                showError(response.message || "Booking failed. Please try again.");
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Booking error:", error);
+            console.error("Response:", xhr.responseText);
+            
+            // Try to parse error response for specific error message
+            try {
+                const errorResponse = JSON.parse(xhr.responseText);
+                if (errorResponse.message) {
+                    showError(errorResponse.message);
+                } else {
+                    showError("Failed to process booking. Please try again.");
+                }
+            } catch (e) {
+                showError("Failed to process booking. Please try again.");
+            }
+        },
+        complete: function() {
+            // Re-enable payment button
+            submitBtn.prop('disabled', false);
+            submitBtn.find('#paymentButtonText').text(originalText);
+        }
+    });
+}
+
+function loadUserBookings() {
+    console.log("Loading user bookings...");
+    
+    $.ajax({
+        url: '../../backend/api/bookings.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log("Bookings loaded:", response);
+            
+            if (response.success && response.data) {
+                populateBookingsTable(response.data);
+            } else {
+                console.error("Failed to load bookings:", response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error loading bookings:", error);
+            console.error("Response:", xhr.responseText);
+        }
+    });
+}
+
+function populateBookingsTable(bookings) {
+    // Destroy existing DataTable if it exists
+    if ($.fn.DataTable.isDataTable('#userBookingsTable')) {
+        $('#userBookingsTable').DataTable().destroy();
+    }
+    
+    // Clear existing content
+    $('#userBookingsTable tbody').empty();
+    
+    // Populate with new data
+    bookings.forEach(booking => {
+        const statusBadge = getStatusBadge(booking.status);
+        const formattedDate = new Date(booking.booking_date).toLocaleDateString();
+        const createdDate = new Date(booking.created_at).toLocaleDateString();
+        const duration = calculateDuration(booking.start_time, booking.end_time);
+        
+        const row = `
+            <tr>
+                <td><span class="font-mono text-purple-300">#${booking.id}</span></td>
+                <td class="font-medium">${booking.station_name || 'N/A'}</td>
+                <td>${formattedDate}</td>
+                <td class="font-mono">${booking.start_time} - ${booking.end_time}</td>
+                <td>${duration}h</td>
+                <td class="font-bold text-green-400">LKR ${parseFloat(booking.total_amount).toFixed(2)}</td>
+                <td>${statusBadge}</td>
+                <td>${createdDate}</td>
+            </tr>
+        `;
+        
+        $('#userBookingsTable tbody').append(row);
+    });
+    
+    // Initialize DataTable with gaming theme
+    $('#userBookingsTable').DataTable({
+        order: [[0, 'desc']], // Sort by booking ID descending
         pageLength: 10,
-        order: [[2, 'desc']], // Sort by date descending
+        responsive: true,
         language: {
-            search: "🔍 Search Gaming Sessions:",
+            search: "Search Sessions:",
             lengthMenu: "Show _MENU_ sessions per page",
             info: "Showing _START_ to _END_ of _TOTAL_ gaming sessions",
             infoEmpty: "No gaming sessions found",
             infoFiltered: "(filtered from _MAX_ total sessions)",
+            emptyTable: "No gaming sessions booked yet. Start your gaming journey!",
             paginate: {
-                first: "⏮️ First",
-                last: "⏭️ Last", 
-                next: "▶️ Next",
-                previous: "◀️ Previous"
-            },
-            emptyTable: "🎮 No gaming sessions booked yet! Ready to start your arena journey?",
-            zeroRecords: "🔍 No matching gaming sessions found. Try adjusting your search!",
-            loadingRecords: "⚡ Loading your gaming history...",
-            processing: "🎮 Processing..."
+                first: "First",
+                last: "Last",
+                next: "Next",
+                previous: "Previous"
+            }
+        }
+    });
+}
+
+function getStatusBadge(status) {
+    const statusClasses = {
+        'pending': 'status-badge status-pending',
+        'confirmed': 'status-badge status-confirmed',
+        'completed': 'status-badge status-completed',
+        'cancelled': 'status-badge status-cancelled'
+    };
+    
+    const statusClass = statusClasses[status] || 'status-badge status-pending';
+    return `<span class="${statusClass}">${status.charAt(0).toUpperCase() + status.slice(1)}</span>`;
+}
+
+function loadUserStats() {
+    console.log("Loading user stats...");
+    
+    $.ajax({
+        url: '../../backend/api/bookings.php?stats=true',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log("Stats loaded:", response);
+            
+            if (response.success && response.stats) {
+                updateStatsDisplay(response.stats);
+            }
         },
-        dom: '<"flex flex-col md:flex-row md:justify-between md:items-center mb-6"<"mb-4 md:mb-0"l><"mb-4 md:mb-0"f>>rtip',
-        columns: [
-            { data: 'booking_reference', title: '<i class="fas fa-hashtag mr-2"></i>Reference' },
-            { 
-                data: null,
-                title: '<i class="fas fa-gamepad mr-2"></i>Station',
-                render: function(data, type, row) {
-                    return `<span class="font-semibold text-purple-300">${row.station_name}</span><br><small class="text-gray-400">${row.station_type}</small>`;
-                }
-            },
-            { 
-                data: 'booking_date', 
-                title: '<i class="fas fa-calendar mr-2"></i>Date',
-                render: function(data) {
-                    return `<span class="text-cyan-300">${new Date(data).toLocaleDateString()}</span>`;
-                }
-            },
-            { 
-                data: null,
-                title: '<i class="fas fa-clock mr-2"></i>Time',
-                render: function(data, type, row) {
-                    return `<span class="text-green-300">${row.start_time}</span><br><small class="text-gray-400">to ${row.end_time}</small>`;
-                }
-            },
-            { 
-                data: 'total_hours',
-                title: '<i class="fas fa-hourglass mr-2"></i>Duration',
-                render: function(data) {
-                    return `<span class="text-yellow-300 font-semibold">${data}h</span>`;
-                }
-            },
-            { 
-                data: 'total_amount',
-                title: '<i class="fas fa-coins mr-2"></i>Amount',
-                render: function(data) {
-                    return `<span class="text-green-400 font-bold">LKR ${parseFloat(data).toFixed(2)}</span>`;
-                }
-            },
-            { 
-                data: 'status',
-                title: '<i class="fas fa-flag mr-2"></i>Status',
-                render: function(data) {
-                    const statusStyles = {
-                        'pending': 'status-badge status-pending',
-                        'confirmed': 'status-badge status-confirmed', 
-                        'completed': 'status-badge status-completed',
-                        'cancelled': 'status-badge status-cancelled'
-                    };
-                    return `<span class="${statusStyles[data] || statusStyles.pending}">${data.toUpperCase()}</span>`;
-                }
-            },
-            { 
-                data: 'created_at',
-                title: '<i class="fas fa-calendar-plus mr-2"></i>Booked On',
-                render: function(data) {
-                    return `<span class="text-purple-300">${new Date(data).toLocaleDateString()}</span>`;
-                }
-            }
-        ],
-        drawCallback: function() {
-            // Add custom styling after each draw
-            $('#userBookingsTable_wrapper .dataTables_info').addClass('text-gaming-light');
-            $('#userBookingsTable_wrapper .dataTables_paginate .paginate_button').addClass('gaming-paginate-btn');
+        error: function(xhr, status, error) {
+            console.error("Error loading stats:", error);
         }
     });
 }
 
-// Load user statistics
-async function loadUserStats() {
-    try {
-        const response = await fetch('../../backend/api/bookings.php?user_bookings=1');
-        const data = await response.json();
-        
-        if (data.success) {
-            const bookings = data.data;
-            $('#totalBookings').text(bookings.length);
-            
-            const completedBookings = bookings.filter(b => b.status === 'completed');
-            const totalHours = completedBookings.reduce((sum, b) => sum + parseFloat(b.total_hours), 0);
-            $('#totalHours').text(totalHours.toFixed(1));
-            
-            const totalSpent = completedBookings.reduce((sum, b) => sum + parseFloat(b.total_amount), 0);
-            $('#totalAmount').text(totalSpent.toFixed(2));
-        }
-    } catch (error) {
-        console.error('Error loading user stats:', error);
-    }
+function updateStatsDisplay(stats) {
+    $('#totalBookings').text(stats.total_bookings || 0);
+    $('#totalHours').text(stats.total_hours || 0);
+    $('#totalAmount').text(parseFloat(stats.total_amount || 0).toFixed(2));
 }
 
-// Load available stations
-async function loadStations() {
-    try {
-        const response = await fetch('../../backend/api/stations.php');
-        const data = await response.json();
-        
-        if (data.success) {
-            stationsData = data.data.filter(station => station.status === 'active');
-            populateStationSelect();
-        } else {
-            showAlert('Error loading stations: ' + data.message, 'error');
-        }
-    } catch (error) {
-        showAlert('Error loading stations', 'error');
-        console.error('Error:', error);
-    }
-}
-
-// Populate station select dropdown
-function populateStationSelect() {
-    const select = $('#stationSelect');
-    select.empty().append('<option value="">Select a station...</option>');
-    
-    stationsData.forEach(station => {
-        const $option = $('<option>', {
-            value: station.id,
-            text: `${station.station_name} (${station.station_type}) - LKR ${station.hourly_rate}/hr`
-        });
-        
-        // Safely store the station data using jQuery's data method
-        $option.data('station', station);
-        select.append($option);
-    });
-}
-
-// Load user bookings
-async function loadUserBookings() {
-    try {
-        const response = await fetch('../../backend/api/bookings.php?user_bookings=1');
-        const data = await response.json();
-        
-        if (data.success) {
-            userBookingsTable.clear().rows.add(data.data).draw();
-        } else {
-            showAlert('Error loading bookings: ' + data.message, 'error');
-        }
-    } catch (error) {
-        showAlert('Error loading bookings', 'error');
-        console.error('Error:', error);
-    }
-}
-
-// Initialize time pickers with business hours (9 AM - 8 PM)
-function initializeTimePickers() {
-    // Start time picker configuration
-    startTimePicker = flatpickr("#startTime", {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        minuteIncrement: 30,
-        minTime: "09:00",
-        maxTime: "19:30", // Last start time to allow 30min minimum session ending by 8 PM
-        defaultHour: 9,
-        defaultMinute: 0,
-        onChange: function(selectedDates, dateStr, instance) {
-            // Update end time picker minimum based on start time
-            if (dateStr) {
-                const startTime = selectedDates[0];
-                const minEndTime = new Date(startTime.getTime() + 30 * 60000); // Add 30 minutes
-                const hours = minEndTime.getHours().toString().padStart(2, '0');
-                const minutes = minEndTime.getMinutes().toString().padStart(2, '0');
-                
-                endTimePicker.set('minTime', `${hours}:${minutes}`);
-                endTimePicker.set('maxTime', "20:00"); // Business hours end at 8 PM
-                
-                // Clear end time if it's now invalid
-                const currentEndTime = endTimePicker.selectedDates[0];
-                if (currentEndTime && currentEndTime <= startTime) {
-                    endTimePicker.clear();
-                }
-                
-                updateBookingSummary();
-            }
-        }
-    });
-
-    // End time picker configuration
-    endTimePicker = flatpickr("#endTime", {
-        enableTime: true,
-        noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
-        minuteIncrement: 30,
-        minTime: "09:30",
-        maxTime: "20:00", // Business hours end at 8 PM
-        defaultHour: 10,
-        defaultMinute: 0,
-        onChange: function(selectedDates, dateStr, instance) {
-            updateBookingSummary();
-        }
-    });
-}
-
-// Initialize date picker with 5-day limit
-function initializeDatePicker() {
-    // Calculate date range (today to next 5 days)
-    const today = new Date();
-    const maxDate = new Date();
-    maxDate.setDate(today.getDate() + 5);
-    
-    flatpickr("#bookingDate", {
-        minDate: "today",
-        maxDate: maxDate,
-        dateFormat: "Y-m-d",
-        defaultDate: today,
-        onChange: function(selectedDates, dateStr, instance) {
-            checkAvailability();
-            updateBookingSummary();
-        }
-    });
-}
-
-// Initialize booking form
-function initializeBookingForm() {
-    // Station selection change
-    $('#stationSelect').change(function() {
-        const selectedOption = $(this).find('option:selected');
-        if (selectedOption.val()) {
-            try {
-                const stationData = selectedOption.data('station');
-                // Handle both string and object cases
-                selectedStation = typeof stationData === 'string' ? JSON.parse(stationData) : stationData;
-                showStationInfo();
-                checkAvailability();
-            } catch (error) {
-                console.error('Error parsing station data:', error);
-                showAlert('Error loading station information', 'error');
-                selectedStation = null;
-                hideStationInfo();
-            }
-        } else {
-            selectedStation = null;
-            hideStationInfo();
-        }
-        updateBookingSummary();
-    });
-
-    // Date change
-    $('#bookingDate').change(function() {
-        checkAvailability();
-        updateBookingSummary();
-    });
-
-    // Time changes
-    $('#startTime, #endTime').change(function() {
-        updateBookingSummary();
-    });
-
-    // Form submission
-    $('#bookingForm').submit(function(e) {
-        e.preventDefault();
-        showPaymentModal();
-    });
-}
-
-// Show station information
-function showStationInfo() {
-    if (!selectedStation) return;
-    
-    $('#stationTypeInfo').text(selectedStation.station_type);
-    $('#stationRateInfo').text('LKR ' + parseFloat(selectedStation.hourly_rate).toFixed(2));
-    $('#stationDescInfo').text(selectedStation.description || 'No description available');
-    $('#stationInfo').removeClass('hidden');
-}
-
-// Hide station information
-function hideStationInfo() {
-    $('#stationInfo').addClass('hidden');
-    $('#bookingSummary').addClass('hidden');
-}
-
-// Check availability for selected station and date
-async function checkAvailability() {
-    if (!selectedStation || !$('#bookingDate').val()) {
-        return;
-    }
-    
-    try {
-        const response = await fetch(`../../backend/api/availability.php?station_id=${selectedStation.id}&date=${$('#bookingDate').val()}`);
-        const data = await response.json();
-        
-        if (data.success) {
-            // Store unavailable slots for validation
-            window.unavailableSlots = data.unavailable_slots || [];
-            showAvailabilityInfo(data.unavailable_slots);
-        } else {
-            console.error('Error checking availability:', data.message);
-        }
-    } catch (error) {
-        console.error('Error checking availability:', error);
-    }
-}
-
-// Show availability information to user
-function showAvailabilityInfo(unavailableSlots) {
-    // Always remove existing availability info first
-    $('#stationInfo .availability-info').remove();
-    
-    if (unavailableSlots && unavailableSlots.length > 0) {
-        let availabilityHtml = '<div class="availability-info mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">';
-        availabilityHtml += '<h4 class="font-semibold text-yellow-800 mb-2"><i class="fas fa-exclamation-triangle mr-2"></i>Unavailable Times Today:</h4>';
-        availabilityHtml += '<ul class="text-sm text-yellow-700">';
-        
-        unavailableSlots.forEach(slot => {
-            const startTime = new Date(`2000-01-01 ${slot.start_time}`).toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            });
-            const endTime = new Date(`2000-01-01 ${slot.end_time}`).toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            });
-            availabilityHtml += `<li><i class="fas fa-clock mr-1"></i>${startTime} - ${endTime} (${slot.reason})</li>`;
-        });
-        
-        availabilityHtml += '</ul></div>';
-        
-        // Add new availability info with proper class
-        $('#stationInfo').append(availabilityHtml);
-    }
-}
-
-// Check if selected time conflicts with unavailable slots
-function hasTimeConflict(startTime, endTime, unavailableSlots) {
-    if (!unavailableSlots || unavailableSlots.length === 0) {
-        return false;
-    }
-    
-    const selectedStart = new Date(`2000-01-01 ${startTime}`);
-    const selectedEnd = new Date(`2000-01-01 ${endTime}`);
-    
-    return unavailableSlots.some(slot => {
-        const slotStart = new Date(`2000-01-01 ${slot.start_time}`);
-        const slotEnd = new Date(`2000-01-01 ${slot.end_time}`);
-        
-        // Check for overlap: selected start < slot end AND selected end > slot start
-        return selectedStart < slotEnd && selectedEnd > slotStart;
-    });
-}
-
-// Update booking summary
-function updateBookingSummary() {
-    const startTimeValue = startTimePicker.selectedDates[0];
-    const endTimeValue = endTimePicker.selectedDates[0];
-    
-    if (!selectedStation || !startTimeValue || !endTimeValue) {
-        $('#bookingSummary').addClass('hidden');
-        return;
-    }
-    
-    if (endTimeValue <= startTimeValue) {
-        $('#bookingSummary').addClass('hidden');
-        return;
-    }
-    
-    const durationMs = endTimeValue - startTimeValue;
-    const durationHours = durationMs / (1000 * 60 * 60);
-    const totalAmount = durationHours * parseFloat(selectedStation.hourly_rate);
-    
-    $('#summaryDuration').text(`${durationHours.toFixed(1)} hours`);
-    $('#summaryAmount').text('LKR ' + totalAmount.toFixed(2));
-    $('#bookingSummary').removeClass('hidden');
-}
-
-// Submit booking
-async function submitBooking() {
-    // Get time picker values
-    const startTimeValue = startTimePicker.selectedDates[0];
-    const endTimeValue = endTimePicker.selectedDates[0];
-    
-    // Format times for API (HH:MM:SS format)
-    const startTime = startTimeValue ? 
-        startTimeValue.getHours().toString().padStart(2, '0') + ':' + 
-        startTimeValue.getMinutes().toString().padStart(2, '0') + ':00' : '';
-    const endTime = endTimeValue ? 
-        endTimeValue.getHours().toString().padStart(2, '0') + ':' + 
-        endTimeValue.getMinutes().toString().padStart(2, '0') + ':00' : '';
-
-    const formData = {
-        station_id: $('#stationSelect').val(),
-        booking_date: $('#bookingDate').val(),
-        start_time: startTime,
-        end_time: endTime,
-        notes: $('#notes').val()
-    };
-    
-    // Validation
-    if (!formData.station_id || !formData.booking_date || !formData.start_time || !formData.end_time) {
-        showAlert('Please fill in all required fields', 'error');
-        return;
-    }
-    
-    if (endTimeValue <= startTimeValue) {
-        showAlert('End time must be after start time', 'error');
-        return;
-    }
-    
-    // Check for time conflicts with unavailable slots
-    if (window.unavailableSlots && hasTimeConflict(startTime, endTime, window.unavailableSlots)) {
-        showAlert('Selected time conflicts with unavailable slots. Please choose a different time.', 'error');
-        return;
-    }
-    
-    // Business hours validation (9 AM to 8 PM)
-    const startHour = startTimeValue.getHours();
-    const endHour = endTimeValue.getHours();
-    const endMinute = endTimeValue.getMinutes();
-    
-    if (startHour < 9 || endHour > 20 || (endHour === 20 && endMinute > 0)) {
-        showAlert('Booking times must be between 9:00 AM and 8:00 PM', 'error');
-        return;
-    }
-    
-    try {
-        const response = await fetch('../../backend/api/bookings.php', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData)
-        });
-        
-        // First check if the response is OK
-        if (!response.ok) {
-            const errorData = await response.json();
-            console.error('Server error:', errorData);
-            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showAlert(`Booking created successfully! Reference: ${result.reference}`, 'success');
-            $('#bookingForm')[0].reset();
-            hideStationInfo();
-            loadUserBookings();
-            loadUserStats();
-            
-            // Reset time pickers
-            startTimePicker.clear();
-            endTimePicker.clear();
-            
-            // Switch to bookings tab
-            $('.tab-button[data-tab="bookings"]').click();
-        } else {
-            const errorMessage = result.message || 'Unknown error occurred while creating booking';
-            console.error('Booking error:', result);
-            showAlert(errorMessage, 'error');
-        }
-    } catch (error) {
-        const errorMessage = error.message || 'An unexpected error occurred while creating the booking';
-        console.error('Booking creation error:', error);
-        showAlert(errorMessage, 'error');
-    }
-}
-
-// Show alert message
-function showAlert(message, type = 'info') {
-    const alertColors = {
-        'success': 'bg-green-100 border-green-400 text-green-700',
-        'error': 'bg-red-100 border-red-400 text-red-700',
-        'info': 'bg-blue-100 border-blue-400 text-blue-700',
-        'warning': 'bg-yellow-100 border-yellow-400 text-yellow-700'
-    };
-    
-    const alertHtml = `
-        <div class="fixed top-4 right-4 z-50 ${alertColors[type]} border px-4 py-3 rounded max-w-sm" style="z-index: 9999;">
-            <div class="flex justify-between items-center">
+function showError(message) {
+    // Create error toast/notification
+    const errorHtml = `
+        <div class="fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 error-toast">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle mr-3"></i>
                 <span>${message}</span>
-                <button onclick="this.parentElement.parentElement.remove()" class="ml-4">
+                <button class="ml-4 text-white hover:text-gray-200" onclick="$(this).parent().parent().remove()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         </div>
     `;
     
-    $('body').append(alertHtml);
+    $('body').append(errorHtml);
     
     // Auto remove after 5 seconds
     setTimeout(() => {
-        $('.fixed.top-4.right-4').fadeOut(function() {
-            $(this).remove();
+        $('.error-toast').fadeOut(() => {
+            $('.error-toast').remove();
         });
     }, 5000);
 }
 
-// Payment Modal Functions
-function showPaymentModal() {
-    // Validate form first
-    const startTimeValue = startTimePicker.selectedDates[0];
-    const endTimeValue = endTimePicker.selectedDates[0];
+function showSuccess(message) {
+    // Create success toast/notification
+    const successHtml = `
+        <div class="fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 success-toast">
+            <div class="flex items-center">
+                <i class="fas fa-check-circle mr-3"></i>
+                <span>${message}</span>
+                <button class="ml-4 text-white hover:text-gray-200" onclick="$(this).parent().parent().remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
     
-    if (!$('#stationSelect').val() || !$('#bookingDate').val() || !startTimeValue || !endTimeValue) {
-        showAlert('Please fill in all required fields', 'error');
-        return;
-    }
+    $('body').append(successHtml);
     
-    if (endTimeValue <= startTimeValue) {
-        showAlert('End time must be after start time', 'error');
-        return;
-    }
-    
-    // Check for time conflicts with unavailable slots
-    const startTime = startTimeValue.getHours().toString().padStart(2, '0') + ':' + 
-                     startTimeValue.getMinutes().toString().padStart(2, '0') + ':00';
-    const endTime = endTimeValue.getHours().toString().padStart(2, '0') + ':' + 
-                   endTimeValue.getMinutes().toString().padStart(2, '0') + ':00';
-    
-    if (window.unavailableSlots && hasTimeConflict(startTime, endTime, window.unavailableSlots)) {
-        showAlert('Selected time conflicts with unavailable slots. Please choose a different time.', 'error');
-        return;
-    }
-    
-    // Business hours validation (9 AM to 8 PM)
-    const startHour = startTimeValue.getHours();
-    const endHour = endTimeValue.getHours();
-    const endMinute = endTimeValue.getMinutes();
-    
-    if (startHour < 9 || endHour > 20 || (endHour === 20 && endMinute > 0)) {
-        showAlert('Booking times must be between 9:00 AM and 8:00 PM', 'error');
-        return;
-    }
-    
-    // Populate payment modal with booking details
-    const selectedStationText = $('#stationSelect option:selected').text();
-    const bookingDate = new Date($('#bookingDate').val()).toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    const startTimeText = startTimeValue.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-    });
-    const endTimeText = endTimeValue.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-    });
-    
-    // Calculate duration and amount
-    const durationMs = endTimeValue - startTimeValue;
-    const durationHours = durationMs / (1000 * 60 * 60);
-    const hourlyRate = selectedStation ? parseFloat(selectedStation.hourly_rate) : 0;
-    const totalAmount = durationHours * hourlyRate;
-    
-    // Update modal content
-    $('#paymentStation').text(selectedStationText);
-    $('#paymentDate').text(bookingDate);
-    $('#paymentTime').text(`${startTimeText} - ${endTimeText}`);
-    $('#paymentDuration').text(`${durationHours.toFixed(1)} hours`);
-    $('#paymentAmount').text(`LKR ${totalAmount.toFixed(2)}`);
-    
-    // Show modal
-    $('#paymentModal').removeClass('hidden');
-    
-    // Focus on card number field
+    // Auto remove after 5 seconds
     setTimeout(() => {
-        $('#cardNumber').focus();
-    }, 300);
-}
-
-// Close payment modal
-function closePaymentModal() {
-    $('#paymentModal').addClass('hidden');
-    // Clear form
-    $('#paymentForm')[0].reset();
-}
-
-// Format card number input
-function formatCardNumber(input) {
-    // Remove all non-digit characters
-    let value = input.replace(/\D/g, '');
-    
-    // Add spaces every 4 digits
-    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-    
-    return value;
-}
-
-// Format expiry date input
-function formatExpiryDate(input) {
-    // Remove all non-digit characters
-    let value = input.replace(/\D/g, '');
-    
-    // Add slash after 2 digits
-    if (value.length >= 2) {
-        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-    }
-    
-    return value;
-}
-
-// Initialize payment modal event handlers
-$(document).ready(function() {
-    // Close modal handlers
-    $('#closePaymentModal, #cancelPayment').click(function() {
-        closePaymentModal();
-    });
-    
-    // Click outside modal to close
-    $('#paymentModal').click(function(e) {
-        if (e.target === this) {
-            closePaymentModal();
-        }
-    });
-    
-    // Format card number input
-    $('#cardNumber').on('input', function() {
-        const formatted = formatCardNumber($(this).val());
-        $(this).val(formatted);
-    });
-    
-    // Format expiry date input
-    $('#expiryDate').on('input', function() {
-        const formatted = formatExpiryDate($(this).val());
-        $(this).val(formatted);
-    });
-    
-    // Only allow numbers for CVV
-    $('#cvv').on('input', function() {
-        $(this).val($(this).val().replace(/\D/g, ''));
-    });
-    
-    // Payment form submission
-    $('#paymentForm').submit(function(e) {
-        e.preventDefault();
-        processPayment();
-    });
-});
-
-// Process payment and submit booking
-async function processPayment() {
-    // Validate payment form
-    const cardNumber = $('#cardNumber').val().replace(/\s/g, '');
-    const cardHolder = $('#cardHolder').val().trim();
-    const expiryDate = $('#expiryDate').val();
-    const cvv = $('#cvv').val();
-    
-    if (!cardNumber || cardNumber.length < 13) {
-        showAlert('Please enter a valid card number', 'error');
-        return;
-    }
-    
-    if (!cardHolder) {
-        showAlert('Please enter the cardholder name', 'error');
-        return;
-    }
-    
-    if (!expiryDate || expiryDate.length < 5) {
-        showAlert('Please enter a valid expiry date', 'error');
-        return;
-    }
-    
-    if (!cvv || cvv.length < 3) {
-        showAlert('Please enter a valid CVV', 'error');
-        return;
-    }
-    
-    // Show processing state
-    $('#paymentButtonText').text('Processing...');
-    $('#processPayment').prop('disabled', true);
-    
-    // Simulate payment processing delay
-    setTimeout(async () => {
-        try {
-            // Submit the actual booking
-            await submitBooking();
-            
-            // Close payment modal
-            closePaymentModal();
-            
-        } catch (error) {
-            console.error('Payment processing error:', error);
-            showAlert('Payment processing failed. Please try again.', 'error');
-        } finally {
-            // Reset button state
-            $('#paymentButtonText').text('Process Payment');
-            $('#processPayment').prop('disabled', false);
-        }
-    }, 2000); // 2 second delay to simulate payment processing
+        $('.success-toast').fadeOut(() => {
+            $('.success-toast').remove();
+        });
+    }, 5000);
 }

@@ -117,6 +117,15 @@
                             Minimum 6 characters for ultimate security
                         </p>
                     </div>
+                    
+                    <div class="relative">
+                        <label for="confirmPassword" class="block text-sm font-medium text-gaming-light mb-2">
+                            <i class="fas fa-lock-open mr-2"></i>Confirm Password
+                        </label>
+                        <input id="confirmPassword" name="confirmPassword" type="password" required 
+                               class="gaming-input w-full text-white placeholder-purple-300" 
+                               placeholder="Confirm your password">
+                    </div>
                 </div>
 
                 <!-- Alert Messages -->
@@ -157,16 +166,44 @@
     </div> <!-- End flex container -->
 
     <script>
+        // Username validation - only letters allowed
+        document.getElementById('username').addEventListener('input', function(e) {
+            const username = e.target.value;
+            const regex = /^[a-zA-Z]*$/; // Only letters, no numbers or special characters
+            
+            if (!regex.test(username)) {
+                // Remove any non-letter characters
+                e.target.value = username.replace(/[^a-zA-Z]/g, '');
+            }
+        });
+
+        // Real-time password confirmation validation
+        document.getElementById('confirmPassword').addEventListener('input', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = e.target.value;
+            const confirmField = e.target;
+            
+            // Remove existing validation styling
+            confirmField.classList.remove('border-red-500', 'border-green-500');
+            
+            if (confirmPassword.length > 0) {
+                if (password === confirmPassword) {
+                    confirmField.classList.add('border-green-500');
+                } else {
+                    confirmField.classList.add('border-red-500');
+                }
+            }
+        });
+
         document.getElementById('userRegisterForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const formData = {
-                username: document.getElementById('username').value,
-                email: document.getElementById('email').value,
-                full_name: document.getElementById('full_name').value,
-                phone: document.getElementById('phone').value,
-                password: document.getElementById('password').value
-            };
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const fullName = document.getElementById('full_name').value;
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
             
             const errorDiv = document.getElementById('errorMessage');
             const successDiv = document.getElementById('successMessage');
@@ -175,12 +212,36 @@
             errorDiv.classList.add('hidden');
             successDiv.classList.add('hidden');
             
+            // Validate username - only letters
+            const usernameRegex = /^[a-zA-Z]+$/;
+            if (!usernameRegex.test(username)) {
+                errorDiv.querySelector('span').textContent = 'Username must contain only letters (no numbers or special characters)';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
             // Basic validation
-            if (formData.password.length < 6) {
+            if (password.length < 6) {
                 errorDiv.querySelector('span').textContent = 'Password must be at least 6 characters long';
                 errorDiv.classList.remove('hidden');
                 return;
             }
+            
+            // Password confirmation validation
+            if (password !== confirmPassword) {
+                errorDiv.querySelector('span').textContent = 'Passwords do not match';
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+            
+            const formData = {
+                username: username,
+                email: email,
+                full_name: fullName,
+                phone: phone,
+                password: password,
+                confirmPassword: confirmPassword
+            };
             
             try {
                 const response = await fetch('../backend/api/user_register.php', {

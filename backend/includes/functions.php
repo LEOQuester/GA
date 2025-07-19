@@ -36,6 +36,19 @@ function createStation($name, $type, $description, $rate)
 
 function updateStation($id, $name, $type, $description, $rate, $status)
 {
+    // First, get the current station data
+    $current = getStationById($id);
+    if (!$current) {
+        return ['success' => false, 'message' => 'Station not found'];
+    }
+
+    // Use current values if new ones are empty
+    $name = !empty($name) ? $name : $current['station_name'];
+    $type = !empty($type) ? $type : $current['station_type'];
+    $description = $description !== '' ? $description : $current['description'];
+    $rate = $rate > 0 ? $rate : $current['hourly_rate'];
+    $status = !empty($status) ? $status : $current['status'];
+
     // Escape all inputs to prevent SQL injection
     $id = escapeString($id);
     $name = escapeString($name);
@@ -89,7 +102,7 @@ function checkBookingConflict($station_id, $date, $start_time, $end_time, $exclu
     $start_time = escapeString($start_time);
     $end_time = escapeString($end_time);
 
-    // Check for existing booking conflicts
+    // Check for existing booking conflicts in main bookings table
     $sql = "SELECT COUNT(*) as count FROM bookings 
             WHERE station_id = '$station_id' AND booking_date = '$date' 
             AND status != 'cancelled'
@@ -102,7 +115,24 @@ function checkBookingConflict($station_id, $date, $start_time, $end_time, $exclu
 
     $result = fetchSingleRow($sql);
     if ($result['count'] > 0) {
-        return true; // Booking conflict found
+        return true; // Booking conflict found in main table
+    }
+
+    // Check for conflicts in booking_stations table (for multi-station bookings)
+    $multi_station_sql = "SELECT COUNT(*) as count FROM booking_stations bs
+                         JOIN bookings b ON bs.booking_id = b.id
+                         WHERE bs.station_id = '$station_id' AND b.booking_date = '$date' 
+                         AND b.status != 'cancelled'
+                         AND ((b.start_time < '$end_time' AND b.end_time > '$start_time') 
+                              OR (b.start_time < '$start_time' AND b.end_time > '$end_time'))";
+
+    if ($exclude_booking_id) {
+        $multi_station_sql .= " AND b.id != '$exclude_booking_id'";
+    }
+
+    $multi_result = fetchSingleRow($multi_station_sql);
+    if ($multi_result['count'] > 0) {
+        return true; // Booking conflict found in multi-station table
     }
 
     // Check for arena-wide unavailable slots
@@ -183,7 +213,24 @@ function getUserBookings($user_id)
 {
     $user_id = escapeString($user_id);
 
-    $sql = "SELECT b.*, s.station_name, s.station_type 
+    $sql = "SELECT b.*, 
+                   s.station_name as primary_station_name, 
+                   s.station_type as primary_station_type,
+                   CASE 
+                       WHEN b.booking_type = 'multi_station' THEN 
+                           (SELECT GROUP_CONCAT(gs.station_name SEPARATOR ', ') 
+                            FROM booking_stations bs2 
+                            JOIN gaming_stations gs ON bs2.station_id = gs.id 
+                            WHERE bs2.booking_id = b.id)
+                       ELSE 
+                           s.station_name 
+                   END as station_name,
+                   CASE 
+                       WHEN b.booking_type = 'multi_station' THEN 
+                           CONCAT('Multi-Station (', b.station_count, ' stations)')
+                       ELSE 
+                           s.station_type 
+                   END as station_type
             FROM bookings b 
             JOIN gaming_stations s ON b.station_id = s.id 
             WHERE b.user_id = '$user_id' 
@@ -194,7 +241,25 @@ function getUserBookings($user_id)
 
 function getAllBookings()
 {
-    $sql = "SELECT b.*, s.station_name, s.station_type, u.username, u.full_name 
+    $sql = "SELECT b.*, 
+                   s.station_name as primary_station_name, 
+                   s.station_type as primary_station_type,
+                   CASE 
+                       WHEN b.booking_type = 'multi_station' THEN 
+                           (SELECT GROUP_CONCAT(gs.station_name SEPARATOR ', ') 
+                            FROM booking_stations bs2 
+                            JOIN gaming_stations gs ON bs2.station_id = gs.id 
+                            WHERE bs2.booking_id = b.id)
+                       ELSE 
+                           s.station_name 
+                   END as station_name,
+                   CASE 
+                       WHEN b.booking_type = 'multi_station' THEN 
+                           CONCAT('Multi-Station (', b.station_count, ' stations)')
+                       ELSE 
+                           s.station_type 
+                   END as station_type,
+                   u.username, u.full_name 
             FROM bookings b 
             JOIN gaming_stations s ON b.station_id = s.id 
             JOIN users u ON b.user_id = u.id 
@@ -267,11 +332,65 @@ function generateBookingReference()
 
 function getAllBookingsWithDetails()
 {
-    $sql = "SELECT b.*, s.station_name, s.station_type, u.email as user_email 
+    $sql = "SELECT b.*, 
+                   s.station_name as primary_station_name, 
+                   s.station_type as primary_station_type,
+                   CASE 
+                       WHEN b.booking_type = 'multi_station' THEN 
+                           (SELECT GROUP_CONCAT(gs.station_name SEPARATOR ', ') 
+                            FROM booking_stations bs2 
+                            JOIN gaming_stations gs ON bs2.station_id = gs.id 
+                            WHERE bs2.booking_id = b.id)
+                       ELSE 
+                           s.station_name 
+                   END as station_name,
+                   CASE 
+                       WHEN b.booking_type = 'multi_station' THEN 
+                           CONCAT('Multi-Station (', b.station_count, ' stations)')
+                       ELSE 
+                           s.station_type 
+                   END as station_type,
+                   u.email as user_email 
             FROM bookings b 
             JOIN gaming_stations s ON b.station_id = s.id 
             JOIN users u ON b.user_id = u.id 
             ORDER BY b.created_at DESC";
 
     return fetchAllRows($sql);
+}
+
+// Function to get all stations for a specific booking
+function getBookingStations($booking_id)
+{
+    $booking_id = escapeString($booking_id);
+
+    $sql = "SELECT bs.station_id, s.station_name, s.station_type, s.hourly_rate
+            FROM booking_stations bs 
+            JOIN gaming_stations s ON bs.station_id = s.id 
+            WHERE bs.booking_id = '$booking_id'
+            ORDER BY s.station_name";
+
+    return fetchAllRows($sql);
+}
+
+// Function to get booking details with all stations
+function getBookingWithStations($booking_id)
+{
+    $booking_id = escapeString($booking_id);
+    
+    // Get main booking details
+    $sql = "SELECT b.*, s.station_name as primary_station_name, s.station_type as primary_station_type
+            FROM bookings b 
+            JOIN gaming_stations s ON b.station_id = s.id 
+            WHERE b.id = '$booking_id'";
+    
+    $booking = fetchSingleRow($sql);
+    
+    if ($booking && $booking['booking_type'] === 'multi_station') {
+        // Get all stations for multi-station booking
+        $booking['stations'] = getBookingStations($booking_id);
+        $booking['station_names'] = array_column($booking['stations'], 'station_name');
+    }
+    
+    return $booking;
 }

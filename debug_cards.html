@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Station Cards Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .station-card {
+            background: linear-gradient(135deg, rgba(31, 41, 55, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
+            border: 2px solid #374151;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .station-card:hover {
+            border-color: #8B5CF6;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
+        }
+        
+        .station-card.selected {
+            border-color: #8B5CF6;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .station-type-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #8B5CF6, #A855F7);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        
+        .station-price {
+            color: #10B981;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .selected-indicator {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #8B5CF6;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            opacity: 0;
+            transform: scale(0);
+            transition: all 0.3s ease;
+        }
+        
+        .station-card.selected .selected-indicator {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white p-8">
+    <h1 class="text-2xl font-bold mb-6">Station Cards Debug Test</h1>
+    
+    <div class="mb-4">
+        <button id="testBtn" class="bg-blue-600 px-4 py-2 rounded">Test Load Stations</button>
+        <span id="status" class="ml-4 text-gray-400">Ready</span>
+    </div>
+    
+    <div id="stationCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Cards will be loaded here -->
+    </div>
+    
+    <div id="debug" class="mt-8 p-4 bg-gray-800 rounded">
+        <h3 class="font-bold mb-2">Debug Info:</h3>
+        <div id="debugContent">Click "Test Load Stations" to debug</div>
+    </div>
+
+    <script>
+        let selectedStations = [];
+        let stationsData = [];
+
+        $('#testBtn').click(function() {
+            $('#status').text('Loading...');
+            loadStations();
+        });
+
+        async function loadStations() {
+            try {
+                $('#debugContent').html('Fetching from: http://localhost/Gaming-Arena/backend/api/stations.php');
+                
+                const response = await fetch('http://localhost/Gaming-Arena/backend/api/stations.php');
+                const data = await response.json();
+                
+                $('#debugContent').html(`
+                    <p>Response Status: ${response.status}</p>
+                    <p>Data Success: ${data.success}</p>
+                    <p>Station Count: ${data.data ? data.data.length : 0}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `);
+                
+                if (data.success) {
+                    stationsData = data.data.filter(station => station.status === 'active');
+                    populateStationCards();
+                    $('#status').text(`Loaded ${stationsData.length} stations`);
+                } else {
+                    $('#status').text('Error: ' + data.message);
+                }
+            } catch (error) {
+                $('#status').text('Fetch Error: ' + error.message);
+                $('#debugContent').html(`<p>Error: ${error.message}</p>`);
+            }
+        }
+
+        function populateStationCards() {
+            const container = $('#stationCards');
+            container.empty();
+            
+            if (stationsData.length === 0) {
+                container.html('<div class="col-span-full text-center text-gray-400 py-8">No stations available</div>');
+                return;
+            }
+            
+            stationsData.forEach(station => {
+                const card = $(`
+                    <div class="station-card" data-station-id="${station.id}">
+                        <div class="selected-indicator">
+                            <i class="fas fa-check">✓</i>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="station-type-badge">${station.station_type}</div>
+                            <h3 class="text-lg font-bold text-white mb-1">${station.station_name}</h3>
+                            <p class="station-price">LKR ${parseFloat(station.hourly_rate).toFixed(2)}/hr</p>
+                        </div>
+                        
+                        ${station.description ? `
+                            <div class="text-sm text-gray-300 mb-4">
+                                ${station.description}
+                            </div>
+                        ` : ''}
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center text-xs text-green-400">
+                                <span class="w-2 h-2 bg-green-400 rounded-full mr-1"></span>
+                                Available
+                            </div>
+                            <div class="text-xs text-purple-300">
+                                Click to select
+                            </div>
+                        </div>
+                    </div>
+                `);
+                
+                card.data('station', station);
+                container.append(card);
+            });
+            
+            $('.station-card').on('click', function() {
+                const stationId = $(this).data('station-id');
+                toggleStationSelection(stationId);
+            });
+        }
+
+        function toggleStationSelection(stationId) {
+            const card = $(`.station-card[data-station-id="${stationId}"]`);
+            const index = selectedStations.indexOf(stationId.toString());
+            
+            if (index > -1) {
+                selectedStations.splice(index, 1);
+                card.removeClass('selected');
+            } else {
+                selectedStations.push(stationId.toString());
+                card.addClass('selected');
+            }
+            
+            $('#status').text(`Selected: ${selectedStations.length} station(s)`);
+        }
+    </script>
+</body>
+</html>

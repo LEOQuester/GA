@@ -2,8 +2,15 @@
 let stationsTable;
 let isEditing = false;
 
+// Test function to ensure JavaScript is working
+window.editStation = function(id) {
+    console.log('🔥 EDIT STATION CALLED! ID:', id);
+    editStationActual(id);
+};
+
 // Initialize when page loads
 $(document).ready(function() {
+    console.log('🚀 stations.js loaded successfully');
     initializeDataTable();
     loadStations();
     initializeModal();
@@ -76,7 +83,7 @@ function initializeDataTable() {
                 render: function(data, type, row) {
                     return `
                         <div class="flex space-x-1">
-                            <button onclick="editStation(${row.id})" class="admin-action-btn admin-action-edit" title="Edit">
+                            <button onclick="console.log('Edit button clicked for ID:', ${row.id}); editStation(${row.id})" class="admin-action-btn admin-action-edit" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
                             <button onclick="deleteStation(${row.id})" class="text-red-600 hover:text-red-800" title="Delete">
@@ -126,24 +133,62 @@ function initializeModal() {
 
 // Open modal
 function openModal(station = null) {
+    console.log('=== OPEN MODAL DEBUG ===');
+    console.log('Station parameter:', station);
+    
     if (station) {
         // Edit mode
         isEditing = true;
         $('#modalTitle').text('Edit Gaming Station');
         $('#stationId').val(station.id);
         $('#stationName').val(station.station_name);
-        $('#stationType').val(station.station_type);
         $('#hourlyRate').val(station.hourly_rate);
-        $('#status').val(station.status);
         $('#description').val(station.description);
+        
+        // Handle station type with debugging
+        console.log('Setting station type to:', station.station_type);
+        $('#stationType').val(station.station_type);
+        console.log('Station type field value after setting:', $('#stationType').val());
+        
+        // If the value didn't set, try to find a matching option
+        if ($('#stationType').val() !== station.station_type) {
+            console.log('Station type value did not match exactly. Looking for alternatives...');
+            const typeOptions = $('#stationType option').map(function() {
+                return $(this).val();
+            }).get();
+            console.log('Available type options:', typeOptions);
+            
+            // Try to find a case-insensitive match
+            const matchingOption = typeOptions.find(option => 
+                option.toLowerCase() === station.station_type.toLowerCase()
+            );
+            
+            if (matchingOption) {
+                console.log('Found matching option:', matchingOption);
+                $('#stationType').val(matchingOption);
+            } else {
+                console.warn('No matching station type option found for:', station.station_type);
+            }
+        }
+        
+        // Handle status with debugging
+        console.log('Setting status to:', station.status);
+        $('#status').val(station.status);
+        console.log('Status field value after setting:', $('#status').val());
+        
+        console.log('Set to edit mode - ID set to:', station.id);
+        console.log('Form field #stationId now has value:', $('#stationId').val());
     } else {
         // Add mode
         isEditing = false;
         $('#modalTitle').text('Add Gaming Station');
         $('#stationForm')[0].reset();
         $('#stationId').val('');
+        
+        console.log('Set to add mode - cleared form');
     }
     
+    console.log('isEditing flag is now:', isEditing);
     $('#stationModal').removeClass('hidden');
 }
 
@@ -159,23 +204,42 @@ async function submitStation() {
     const formData = {
         station_name: $('#stationName').val(),
         station_type: $('#stationType').val(),
-        hourly_rate: $('#hourlyRate').val(),
-        status: $('#status').val(),
-        description: $('#description').val()
+        hourly_rate: parseFloat($('#hourlyRate').val()) || 0,
+        status: $('#status').val() || 'active',
+        description: $('#description').val() || ''
     };
     
-    // Validation
-    if (!formData.station_name || !formData.station_type || !formData.hourly_rate) {
-        showAlert('Please fill in all required fields', 'error');
+    // Always add id for editing, ensure it's a valid number
+    if (isEditing) {
+        const stationId = $('#stationId').val();
+        formData.id = stationId ? parseInt(stationId) : 0;
+        
+        // Extra safety check
+        if (!formData.id || formData.id <= 0) {
+            showAlert('Error: Station ID is missing. Please try refreshing and editing again.', 'error');
+            return;
+        }
+    }
+    
+    // Much more relaxed validation - only check basics
+    if (!formData.station_name) {
+        showAlert('Station name is required', 'error');
         return;
     }
     
     try {
-        const url = isEditing ? 
-            `../../backend/api/stations.php?id=${$('#stationId').val()}` : 
-            '../../backend/api/stations.php';
+        const url = '../../backend/api/stations.php';
+        const method = isEditing ? 'PATCH' : 'POST';
         
-        const method = isEditing ? 'PUT' : 'POST';
+        // Debug logging
+        console.log('=== FRONTEND DEBUG START ===');
+        console.log('Is editing mode:', isEditing);
+        console.log('Station ID from form:', $('#stationId').val());
+        console.log('Station ID type:', typeof $('#stationId').val());
+        console.log('Submitting station data:', formData);
+        console.log('Method:', method);
+        console.log('URL:', url);
+        console.log('JSON to send:', JSON.stringify(formData));
         
         const response = await fetch(url, {
             method: method,
@@ -185,7 +249,50 @@ async function submitStation() {
             body: JSON.stringify(formData)
         });
         
-        const result = await response.json();
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+        
+        const responseText = await response.text();
+        console.log('Raw response text:', responseText);
+        
+        let result;
+        try {
+            result = JSON.parse(responseText);
+            console.log('Parsed JSON result:', result);
+        } catch (parseError) {
+            console.error('JSON Parse Error:', parseError);
+            console.log('Unable to parse response as JSON');
+            showAlert('Server returned invalid response', 'error');
+            return;
+        }
+        
+        // Log debug information if available
+        if (result.debug) {
+            console.group('🔧 Backend Debug Information');
+            console.log('Raw Input Received:', result.debug.raw_input);
+            console.log('Decoded JSON:', result.debug.decoded_input);
+            console.log('JSON Decode Error:', result.debug.json_decode_error);
+            
+            if (result.debug.parsed_values) {
+                console.group('📋 Parsed Values');
+                Object.entries(result.debug.parsed_values).forEach(([key, value]) => {
+                    console.log(`${key}:`, value, `(${typeof value})`);
+                });
+                console.groupEnd();
+            }
+            
+            if (result.debug.validation_checks) {
+                console.group('✅ Validation Checks');
+                Object.entries(result.debug.validation_checks).forEach(([check, passed]) => {
+                    console.log(`${check}:`, passed ? '✅ PASS' : '❌ FAIL');
+                });
+                console.groupEnd();
+            }
+            console.groupEnd();
+        } else {
+            console.warn('No debug information received from backend');
+        }
         
         if (result.success) {
             showAlert(
@@ -195,19 +302,64 @@ async function submitStation() {
             closeModal();
             loadStations();
         } else {
+            console.error('Server returned error:', result.message);
             showAlert(result.message, 'error');
         }
     } catch (error) {
-        showAlert('Error saving station', 'error');
-        console.error('Error:', error);
+        console.error('=== FETCH ERROR ===');
+        console.error('Error details:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        showAlert('Network error occurred', 'error');
     }
 }
 
-// Edit station
-function editStation(id) {
-    const row = stationsTable.rows().data().toArray().find(station => station.id == id);
-    if (row) {
-        openModal(row);
+// Edit station (actual implementation)
+async function editStationActual(id) {
+    console.log('=== EDIT STATION DEBUG ===');
+    console.log('Clicked edit for ID:', id, typeof id);
+    
+    try {
+        const response = await fetch('../../backend/api/stations.php');
+        const data = await response.json();
+        
+        console.log('All stations data:', data.data);
+        
+        if (data.success) {
+            const station = data.data.find(s => s.id == id);
+            console.log('Found station object:', station);
+            
+            if (station) {
+                console.log('Station object details:');
+                console.log('- ID:', station.id);
+                console.log('- Name:', station.station_name);
+                console.log('- Type:', station.station_type);
+                console.log('- Rate:', station.hourly_rate);
+                console.log('- Status:', station.status);
+                console.log('- Description:', station.description);
+                
+                // Use our local openModal function
+                console.log('Using stations.php modal');
+                isEditing = true;
+                openModal(station);
+                
+                // Verify the form was populated
+                setTimeout(() => {
+                    console.log('After modal open - stationId field value:', $('#stationId').val());
+                    console.log('After modal open - isEditing flag:', isEditing);
+                    console.log('After modal open - station type field value:', $('#stationType').val());
+                }, 100);
+            } else {
+                console.error('Station not found for ID:', id);
+                showAlert('Station not found', 'error');
+            }
+        } else {
+            console.error('Failed to load stations:', data.message);
+            showAlert('Error loading station data: ' + data.message, 'error');
+        }
+    } catch (error) {
+        console.error('Error loading station data:', error);
+        showAlert('Error loading station data', 'error');
     }
 }
 

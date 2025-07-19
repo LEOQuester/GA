@@ -1,0 +1,55 @@
+=== Debug Log for Gaming Stations ===
+This file will show all PUT request data for debugging the edit functionality.
+=== PUT Request Debug ===
+Time: 2025-07-19 22:50:04
+Raw input: {"station_name":"Gaming Station 1","station_type":"Gaming PC","hourly_rate":"300.00","status":"active","description":"High-end PC with RTX 4080, 32GB RAM, perfect for AAA games"}
+Decoded input: Array
+(
+    [station_name] => Gaming Station 1
+    [station_type] => Gaming PC
+    [hourly_rate] => 300.00
+    [status] => active
+    [description] => High-end PC with RTX 4080, 32GB RAM, perfect for AAA games
+)
+
+=== PUT Request Debug ===
+Time: 2025-07-19 22:50:04
+Raw input: {"station_name":"Gaming Station 1","station_type":"Gaming PC","hourly_rate":"300.00","status":"active","description":"High-end PC with RTX 4080, 32GB RAM, perfect for AAA games"}
+Decoded input: Array
+(
+    [station_name] => Gaming Station 1
+    [station_type] => Gaming PC
+    [hourly_rate] => 300.00
+    [status] => active
+    [description] => High-end PC with RTX 4080, 32GB RAM, perfect for AAA games
+)
+
+Parsed values: id=0, name='Gaming Station 1', type='Gaming PC', rate=300.00, status='active'
+Validation check: id > 0? NO
+Validation check: name not empty? YES
+Validation check: type not empty? YES
+Validation check: rate > 0? YES
+Rate type: string
+Rate value: '300.00'
+=== PUT Request Debug ===
+Time: 2025-07-19 22:50:04
+Raw input: {"station_name":"Gaming Station 1","station_type":"Gaming PC","hourly_rate":"300.00","status":"active","description":"High-end PC with RTX 4080, 32GB RAM, perfect for AAA games"}
+Decoded input: Array
+(
+    [station_name] => Gaming Station 1
+    [station_type] => Gaming PC
+    [hourly_rate] => 300.00
+    [status] => active
+    [description] => High-end PC with RTX 4080, 32GB RAM, perfect for AAA games
+)
+
+Parsed values: id=0, name='Gaming Station 1', type='Gaming PC', rate=300.00, status='active'
+Validation check: id > 0? NO
+Validation check: name not empty? YES
+Validation check: type not empty? YES
+Validation check: rate > 0? YES
+Rate type: string
+Rate value: '300.00'
+VALIDATION FAILED!
+========================
+

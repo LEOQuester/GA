@@ -44,6 +44,14 @@ function renderAdminSidebar($currentPage = '') {
                     </a>
                 </li>
                 
+                <!-- Food Management -->
+                <li>
+                    <a href="../admin_panel.html" class="flex items-center p-2 text-gray-300 rounded-lg hover:bg-gray-700 group <?= $currentPage === 'food-management' ? 'bg-gray-700 text-white' : '' ?>">
+                        <i class="fas fa-utensils w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white <?= $currentPage === 'food-management' ? 'text-white' : '' ?>"></i>
+                        <span class="ml-3">Food Management</span>
+                    </a>
+                </li>
+                
                 <!-- Reports & Analytics -->
                 <li>
                     <a href="reports.php" class="flex items-center p-2 text-gray-300 rounded-lg hover:bg-gray-700 group <?= $currentPage === 'reports' ? 'bg-gray-700 text-white' : '' ?>">

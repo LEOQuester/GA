@@ -26,7 +26,7 @@ if (empty($username) || empty($password)) {
 }
 
 if (userLogin($username, $password)) {
-    echo json_encode(['success' => true, 'message' => 'Login successful', 'redirect' => 'user/dashboard.php']);
+    echo json_encode(['success' => true, 'message' => 'Login successful', 'redirect' => '../index.php']);
 } else {
     echo json_encode(['success' => false, 'message' => 'Invalid credentials or account inactive']);
 }

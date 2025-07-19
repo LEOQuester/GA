@@ -315,21 +315,60 @@ async function saveStation() {
 
 // Edit station
 async function editStation(id) {
+    console.log('=== EDIT STATION DEBUG ===');
+    console.log('Clicked edit for ID:', id, typeof id);
+    
     try {
         const response = await fetch('../../backend/api/stations.php');
         const data = await response.json();
         
+        console.log('All stations data:', data.data);
+        
         if (data.success) {
             const station = data.data.find(s => s.id == id);
+            console.log('Found station object:', station);
+            
             if (station) {
-                openStationModal(station);
+                console.log('Station object details:');
+                console.log('- ID:', station.id);
+                console.log('- Name:', station.station_name);
+                console.log('- Type:', station.station_type);
+                console.log('- Rate:', station.hourly_rate);
+                console.log('- Status:', station.status);
+                console.log('- Description:', station.description);
+                
+                // Check if we're on the stations page or dashboard
+                if (typeof openModal !== 'undefined') {
+                    // We're on stations.php - use the modal there
+                    console.log('Using stations.php modal');
+                    isEditing = true;
+                    openModal(station);
+                } else if (typeof openStationModal !== 'undefined') {
+                    // We're on dashboard - use dashboard modal
+                    console.log('Using dashboard modal');
+                    openStationModal(station);
+                } else {
+                    console.error('No modal function available');
+                    showAlert('Error: Modal function not found', 'error');
+                }
+                
+                // Verify the form was populated
+                setTimeout(() => {
+                    console.log('After modal open - stationId field value:', $('#stationId').val());
+                    console.log('After modal open - isEditing flag:', isEditing);
+                    console.log('After modal open - station type field value:', $('#stationType').val());
+                }, 100);
             } else {
+                console.error('Station not found for ID:', id);
                 showAlert('Station not found', 'error');
             }
+        } else {
+            console.error('Failed to load stations:', data.message);
+            showAlert('Error loading station data: ' + data.message, 'error');
         }
     } catch (error) {
+        console.error('Error loading station data:', error);
         showAlert('Error loading station data', 'error');
-        console.error('Error:', error);
     }
 }
 

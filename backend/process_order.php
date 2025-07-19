@@ -4,16 +4,11 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Database configuration
-$host = 'localhost';
-$dbname = 'gaming_arena';
-$username = 'root'; // Change this to your database username
-$password = '';     // Change this to your database password
+require_once __DIR__ . '/config/database.php';
 
 try {
-    // Create PDO connection
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Get database connection
+    $connection = getDbConnection();
     
     // Check if request method is POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -90,24 +85,17 @@ try {
     
     // Prepare SQL statement
     $sql = "INSERT INTO food (floor_number, room_number, food_items, total_amount, card_number, card_holder_name, expiry_date, cvv, order_date) 
-            VALUES (:floor_number, :room_number, :food_items, :total_amount, :card_number, :card_holder_name, :expiry_date, :cvv, NOW())";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
     
-    $stmt = $pdo->prepare($sql);
+    $stmt = mysqli_prepare($connection, $sql);
     
     // Bind parameters
-    $stmt->bindParam(':floor_number', $floor_number);
-    $stmt->bindParam(':room_number', $room_number);
-    $stmt->bindParam(':food_items', $food_items_json);
-    $stmt->bindParam(':total_amount', $total_amount);
-    $stmt->bindParam(':card_number', $masked_card_number);
-    $stmt->bindParam(':card_holder_name', $card_holder_name);
-    $stmt->bindParam(':expiry_date', $expiry_date);
-    $stmt->bindParam(':cvv', $cvv); // In production, you should hash or not store CVV
+    mysqli_stmt_bind_param($stmt, 'sssdssss', $floor_number, $room_number, $food_items_json, $total_amount, $masked_card_number, $card_holder_name, $expiry_date, $cvv);
     
     // Execute the statement
-    if ($stmt->execute()) {
+    if (mysqli_stmt_execute($stmt)) {
         // Get the receipt number (auto-increment ID)
-        $receipt_number = $pdo->lastInsertId();
+        $receipt_number = mysqli_insert_id($connection);
         
         // Return success response
         echo json_encode([
@@ -123,23 +111,12 @@ try {
             ]
         ]);
     } else {
-        throw new Exception('Failed to save order to database');
+        throw new Exception('Failed to save order to database: ' . mysqli_error($connection));
     }
     
-} catch (PDOException $e) {
-    // Database error
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Database error: ' . $e->getMessage()
-    ]);
-    
-    // Log error for debugging (in production, use proper logging)
-    error_log("Database Error: " . $e->getMessage());
-    
 } catch (Exception $e) {
-    // General error
-    http_response_code(400);
+    // Handle both database and general errors
+    http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage()
@@ -150,5 +127,7 @@ try {
 }
 
 // Close database connection
-$pdo = null;
+if (isset($connection)) {
+    mysqli_close($connection);
+}
 ?>
