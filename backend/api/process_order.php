@@ -88,13 +88,30 @@ try {
     // For security, we'll mask the card number (keep only last 4 digits)
     $masked_card_number = '**** **** **** ' . substr($card_number_clean, -4);
 
+    // Generate unique receipt number
+    $receipt_number = 'RCP' . date('Ymd') . rand(1000, 9999);
+
+    // Ensure receipt number is unique
+    $check_sql = "SELECT COUNT(*) FROM food WHERE receipt_number = :receipt_number";
+    $check_stmt = $pdo->prepare($check_sql);
+    $check_stmt->bindParam(':receipt_number', $receipt_number);
+    $check_stmt->execute();
+
+    // If receipt number exists, generate a new one
+    while ($check_stmt->fetchColumn() > 0) {
+        $receipt_number = 'RCP' . date('Ymd') . rand(1000, 9999);
+        $check_stmt->bindParam(':receipt_number', $receipt_number);
+        $check_stmt->execute();
+    }
+
     // Prepare SQL statement
-    $sql = "INSERT INTO food (floor_number, room_number, food_items, total_amount, card_number, card_holder_name, expiry_date, cvv, order_date) 
-            VALUES (:floor_number, :room_number, :food_items, :total_amount, :card_number, :card_holder_name, :expiry_date, :cvv, NOW())";
+    $sql = "INSERT INTO food (receipt_number, floor_number, room_number, food_items, total_amount, card_number, card_holder_name, expiry_date, cvv, order_date) 
+            VALUES (:receipt_number, :floor_number, :room_number, :food_items, :total_amount, :card_number, :card_holder_name, :expiry_date, :cvv, NOW())";
 
     $stmt = $pdo->prepare($sql);
 
     // Bind parameters
+    $stmt->bindParam(':receipt_number', $receipt_number);
     $stmt->bindParam(':floor_number', $floor_number);
     $stmt->bindParam(':room_number', $room_number);
     $stmt->bindParam(':food_items', $food_items_json);
@@ -106,10 +123,7 @@ try {
 
     // Execute the statement
     if ($stmt->execute()) {
-        // Get the receipt number (auto-increment ID)
-        $receipt_number = $pdo->lastInsertId();
-
-        // Return success response
+        // Return success response with the generated receipt number
         echo json_encode([
             'success' => true,
             'message' => 'Order processed successfully',

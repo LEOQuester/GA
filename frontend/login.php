@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,20 +15,28 @@
             background-size: 400% 400%;
             animation: gradientShift 8s ease infinite;
         }
-        
+
         @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
         }
-        
+
         .login-glow {
-            box-shadow: 
+            box-shadow:
                 0 0 20px rgba(138, 43, 226, 0.4),
                 0 0 40px rgba(138, 43, 226, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
+
 <body class="bg-gaming-pattern min-h-screen py-12 px-4 sm:px-6 lg:px-8 relative">
     <!-- Animated Background Particles -->
     <div class="particles">
@@ -45,86 +54,86 @@
     <!-- Main Content Container -->
     <div class="flex items-center justify-center min-h-screen">
         <div class="max-w-md w-full space-y-8 relative z-10 page-transition">
-        <!-- Header Section -->
-        <div class="text-center">
-            <div class="mx-auto h-20 w-20 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-purple-800 login-glow mb-6">
-                <img src="../logo/logo.png" alt="G-Arena Logo" class="h-12 w-auto">
+            <!-- Header Section -->
+            <div class="text-center">
+                <div class="mx-auto h-20 w-20 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-600 to-purple-800 login-glow mb-6">
+                    <img src="../logo/logo.png" alt="G-Arena Logo" class="h-12 w-auto">
+                </div>
+                <h2 class="text-4xl font-bold neon-text mb-2">
+                    Welcome Back, Gamer
+                </h2>
+                <p class="text-gaming-light text-lg">
+                    Ready to level up your experience?
+                </p>
+                <p class="mt-4 text-center text-sm text-gaming-light">
+                    New to the arena?
+                    <a href="register.php" class="font-semibold text-purple-400 hover:text-purple-300 transition-colors duration-300 underline decoration-purple-500">
+                        Resigter
+                    </a>
+                </p>
             </div>
-            <h2 class="text-4xl font-bold neon-text mb-2">
-                Welcome Back, Gamer
-            </h2>
-            <p class="text-gaming-light text-lg">
-                Ready to level up your experience?
-            </p>
-            <p class="mt-4 text-center text-sm text-gaming-light">
-                New to the arena?
-                <a href="register.php" class="font-semibold text-purple-400 hover:text-purple-300 transition-colors duration-300 underline decoration-purple-500">
-                    Join the battle
-                </a>
-            </p>
-        </div>
-        
-        <!-- Login Form Card -->
-        <div class="gaming-card p-8">
-            <form class="space-y-6" id="userLoginForm">
-                <div class="space-y-4">
-                    <div class="relative">
-                        <label for="username" class="block text-sm font-medium text-gaming-light mb-2">
-                            <i class="fas fa-user mr-2"></i>Username or Email
-                        </label>
-                        <input id="username" name="username" type="text" required 
-                               class="gaming-input w-full text-white placeholder-purple-300" 
-                               placeholder="Enter your username or email">
-                    </div>
-                    <div class="relative">
-                        <label for="password" class="block text-sm font-medium text-gaming-light mb-2">
-                            <i class="fas fa-lock mr-2"></i>Password
-                        </label>
-                        <input id="password" name="password" type="password" required 
-                               class="gaming-input w-full text-white placeholder-purple-300" 
-                               placeholder="Enter your password">
-                        <div class="text-right mt-2">
-                            <a href="#" id="forgotPasswordLink" class="text-sm text-purple-400 hover:text-purple-300 transition-colors duration-300">
-                                <i class="fas fa-question-circle mr-1"></i>Forgot password?
-                            </a>
+
+            <!-- Login Form Card -->
+            <div class="gaming-card p-8">
+                <form class="space-y-6" id="userLoginForm">
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <label for="username" class="block text-sm font-medium text-gaming-light mb-2">
+                                <i class="fas fa-user mr-2"></i>Username or Email
+                            </label>
+                            <input id="username" name="username" type="text" required
+                                class="gaming-input w-full text-white placeholder-purple-300"
+                                placeholder="Enter your username or email">
+                        </div>
+                        <div class="relative">
+                            <label for="password" class="block text-sm font-medium text-gaming-light mb-2">
+                                <i class="fas fa-lock mr-2"></i>Password
+                            </label>
+                            <input id="password" name="password" type="password" required
+                                class="gaming-input w-full text-white placeholder-purple-300"
+                                placeholder="Enter your password">
+                            <div class="text-right mt-2">
+                                <a href="#" id="forgotPasswordLink" class="text-sm text-purple-400 hover:text-purple-300 transition-colors duration-300">
+                                    <i class="fas fa-question-circle mr-1"></i>Forgot password?
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Alert Messages -->
-                <div id="errorMessage" class="hidden gaming-alert border-red-500 bg-red-900/50 text-red-200 px-4 py-3 rounded-lg">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                    <span></span>
-                </div>
-                <div id="successMessage" class="hidden gaming-alert border-green-500 bg-green-900/50 text-green-200 px-4 py-3 rounded-lg">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    <span></span>
-                </div>
+                    <!-- Alert Messages -->
+                    <div id="errorMessage" class="hidden gaming-alert border-red-500 bg-red-900/50 text-red-200 px-4 py-3 rounded-lg">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        <span></span>
+                    </div>
+                    <div id="successMessage" class="hidden gaming-alert border-green-500 bg-green-900/50 text-green-200 px-4 py-3 rounded-lg">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        <span></span>
+                    </div>
 
-                <!-- Submit Button -->
-                <div>
-                    <button type="submit" class="gaming-btn w-full group relative overflow-hidden">
-                        <span class="relative z-10 flex items-center justify-center">
-                            <i class="fas fa-rocket mr-2 group-hover:animate-bounce"></i>
-                            Launch Into Arena
-                        </span>
-                    </button>
-                </div>
-            </form>
-            
-            <!-- Additional Links -->
-            <div class="mt-6 pt-6 border-t border-purple-600/30">
-                <div class="text-center space-y-3">
-                    <a href="../index2.php" class="block text-purple-400 hover:text-purple-300 transition-colors duration-300">
-                        <i class="fas fa-home mr-2"></i>Back to Home
-                    </a>
-                    <a href="admin_login.php" class="block text-purple-400 hover:text-purple-300 transition-colors duration-300 text-sm">
-                        <i class="fas fa-cog mr-2"></i>Admin Access
-                    </a>
+                    <!-- Submit Button -->
+                    <div>
+                        <button type="submit" class="gaming-btn w-full group relative overflow-hidden">
+                            <span class="relative z-10 flex items-center justify-center">
+                                <i class="fas fa-rocket mr-2 group-hover:animate-bounce"></i>
+                                Launch Into Arena
+                            </span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Additional Links -->
+                <div class="mt-6 pt-6 border-t border-purple-600/30">
+                    <div class="text-center space-y-3">
+                        <a href="../index.php" class="block text-purple-400 hover:text-purple-300 transition-colors duration-300">
+                            <i class="fas fa-home mr-2"></i>Back to Home
+                        </a>
+                        <a href="admin_login.php" class="block text-purple-400 hover:text-purple-300 transition-colors duration-300 text-sm">
+                            <i class="fas fa-cog mr-2"></i>Admin Access
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     </div> <!-- End flex container -->
 
     <!-- Forgot Password Modal -->
@@ -138,24 +147,24 @@
                     <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            
+
             <form id="forgotPasswordForm" class="space-y-4">
                 <div>
                     <label for="resetEmail" class="block text-sm font-medium text-gaming-light mb-2">
                         <i class="fas fa-envelope mr-2"></i>Email Address
                     </label>
-                    <input id="resetEmail" name="email" type="email" required 
-                           class="gaming-input w-full text-white placeholder-purple-300" 
-                           placeholder="Enter your email address">
+                    <input id="resetEmail" name="email" type="email" required
+                        class="gaming-input w-full text-white placeholder-purple-300"
+                        placeholder="Enter your email address">
                 </div>
-                
+
                 <div>
                     <label for="confirmResetEmail" class="block text-sm font-medium text-gaming-light mb-2">
                         <i class="fas fa-envelope-open mr-2"></i>Confirm Email Address
                     </label>
-                    <input id="confirmResetEmail" name="confirmEmail" type="email" required 
-                           class="gaming-input w-full text-white placeholder-purple-300" 
-                           placeholder="Confirm your email address">
+                    <input id="confirmResetEmail" name="confirmEmail" type="email" required
+                        class="gaming-input w-full text-white placeholder-purple-300"
+                        placeholder="Confirm your email address">
                 </div>
 
                 <!-- Modal Alert Messages -->
@@ -183,27 +192,30 @@
     <script>
         document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('errorMessage');
             const successDiv = document.getElementById('successMessage');
-            
+
             // Hide previous messages
             errorDiv.classList.add('hidden');
             successDiv.classList.add('hidden');
-            
+
             try {
                 const response = await fetch('../backend/api/user_login.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     successDiv.querySelector('span').textContent = data.message;
                     successDiv.classList.remove('hidden');
@@ -219,22 +231,22 @@
                 errorDiv.classList.remove('hidden');
             }
         });
-        
+
         // Check for logout success message
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
             const logout = urlParams.get('logout');
-            
+
             if (logout === 'success') {
                 const successDiv = document.getElementById('successMessage');
                 successDiv.querySelector('span').textContent = 'Logged out successfully! Ready for your next gaming session?';
                 successDiv.classList.remove('hidden');
-                
+
                 // Auto-hide the message after 5 seconds
                 setTimeout(() => {
                     successDiv.classList.add('hidden');
                 }, 5000);
-                
+
                 // Clean up the URL without refreshing the page
                 const url = new URL(window.location);
                 url.searchParams.delete('logout');
@@ -276,24 +288,24 @@
         // Forgot password form handler
         document.getElementById('forgotPasswordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('resetEmail').value;
             const confirmEmail = document.getElementById('confirmResetEmail').value;
-            
+
             const modalErrorDiv = document.getElementById('modalErrorMessage');
             const modalSuccessDiv = document.getElementById('modalSuccessMessage');
-            
+
             // Hide previous messages
             modalErrorDiv.classList.add('hidden');
             modalSuccessDiv.classList.add('hidden');
-            
+
             // Validate emails match
             if (email !== confirmEmail) {
                 modalErrorDiv.querySelector('span').textContent = 'Email addresses do not match';
                 modalErrorDiv.classList.remove('hidden');
                 return;
             }
-            
+
             // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
@@ -301,7 +313,7 @@
                 modalErrorDiv.classList.remove('hidden');
                 return;
             }
-            
+
             try {
                 const response = await fetch('../backend/api/forgot_password.php', {
                     method: 'POST',
@@ -312,9 +324,9 @@
                         email: email
                     })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     modalSuccessDiv.querySelector('span').textContent = data.message;
                     modalSuccessDiv.classList.remove('hidden');
@@ -332,4 +344,5 @@
         });
     </script>
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,18 +10,19 @@
     <link rel="stylesheet" href="assets/css/gaming-theme.css">
     <style>
         .admin-glow {
-            box-shadow: 
+            box-shadow:
                 0 0 30px rgba(255, 0, 102, 0.4),
                 0 0 60px rgba(255, 0, 102, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
-        
+
         .admin-theme {
             --admin-color: #FF0066;
             --admin-glow: rgba(255, 0, 102, 0.4);
         }
     </style>
 </head>
+
 <body class="bg-gaming-pattern min-h-screen flex items-center justify-center relative overflow-hidden admin-theme">
     <!-- Animated Background Particles -->
     <div class="particles">
@@ -48,12 +50,12 @@
                 Authorized personnel only
             </p>
             <p class="text-center text-sm text-gaming-light">
-                <a href="../index2.php" class="font-semibold text-red-400 hover:text-red-300 transition-colors duration-300 underline decoration-red-500">
+                <a href="../index.php" class="font-semibold text-red-400 hover:text-red-300 transition-colors duration-300 underline decoration-red-500">
                     <i class="fas fa-arrow-left mr-1"></i>Return to Arena
                 </a>
             </p>
         </div>
-        
+
         <!-- Admin Login Form Card -->
         <div class="gaming-card p-8" style="border-color: #FF0066; box-shadow: 0 0 20px rgba(255, 0, 102, 0.4);">
             <form class="space-y-6" id="adminLoginForm">
@@ -62,48 +64,48 @@
                         <label for="username" class="block text-sm font-medium text-gaming-light mb-2">
                             <i class="fas fa-user-cog mr-2"></i>Admin Username
                         </label>
-                        <input id="username" name="username" type="text" required 
-                               class="gaming-input w-full text-white placeholder-red-300" 
-                               placeholder="Enter your admin username"
-                               style="border-color: rgba(255, 0, 102, 0.3);"
-                               onfocus="this.style.borderColor='#FF0066'; this.style.boxShadow='0 0 15px rgba(255, 0, 102, 0.4)'"
-                               onblur="this.style.borderColor='rgba(255, 0, 102, 0.3)'; this.style.boxShadow='none'"
-                    </div>
-                    <div class="relative">
-                        <label for="password" class="block text-sm font-medium text-gaming-light mb-2">
-                            <i class="fas fa-shield-alt mr-2"></i>Security Key
-                        </label>
-                        <input id="password" name="password" type="password" required 
-                               class="gaming-input w-full text-white placeholder-red-300" 
-                               placeholder="Enter your security key"
-                               style="border-color: rgba(255, 0, 102, 0.3);"
-                               onfocus="this.style.borderColor='#FF0066'; this.style.boxShadow='0 0 15px rgba(255, 0, 102, 0.4)'"
-                               onblur="this.style.borderColor='rgba(255, 0, 102, 0.3)'; this.style.boxShadow='none'"
-                    </div>
-                </div>
+                        <input id="username" name="username" type="text" required
+                            class="gaming-input w-full text-white placeholder-red-300"
+                            placeholder="Enter your admin username"
+                            style="border-color: rgba(255, 0, 102, 0.3);"
+                            onfocus="this.style.borderColor='#FF0066'; this.style.boxShadow='0 0 15px rgba(255, 0, 102, 0.4)'"
+                            onblur="this.style.borderColor='rgba(255, 0, 102, 0.3)'; this.style.boxShadow='none'"
+                            </div>
+                        <div class="relative">
+                            <label for="password" class="block text-sm font-medium text-gaming-light mb-2">
+                                <i class="fas fa-shield-alt mr-2"></i>Security Key
+                            </label>
+                            <input id="password" name="password" type="password" required
+                                class="gaming-input w-full text-white placeholder-red-300"
+                                placeholder="Enter your security key"
+                                style="border-color: rgba(255, 0, 102, 0.3);"
+                                onfocus="this.style.borderColor='#FF0066'; this.style.boxShadow='0 0 15px rgba(255, 0, 102, 0.4)'"
+                                onblur="this.style.borderColor='rgba(255, 0, 102, 0.3)'; this.style.boxShadow='none'"
+                                </div>
+                        </div>
 
-                <!-- Alert Messages -->
-                <div id="errorMessage" class="hidden gaming-alert border-red-500 bg-red-900/50 text-red-200 px-4 py-3 rounded-lg">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                    <span></span>
-                </div>
-                <div id="successMessage" class="hidden gaming-alert border-green-500 bg-green-900/50 text-green-200 px-4 py-3 rounded-lg">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    <span></span>
-                </div>
+                        <!-- Alert Messages -->
+                        <div id="errorMessage" class="hidden gaming-alert border-red-500 bg-red-900/50 text-red-200 px-4 py-3 rounded-lg">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            <span></span>
+                        </div>
+                        <div id="successMessage" class="hidden gaming-alert border-green-500 bg-green-900/50 text-green-200 px-4 py-3 rounded-lg">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <span></span>
+                        </div>
 
-                <!-- Submit Button -->
-                <div>
-                    <button type="submit" class="w-full group relative overflow-hidden" 
-                            style="background: linear-gradient(135deg, #FF0066 0%, #CC0052 100%); border: 2px solid #FF0066; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(255, 0, 102, 0.4);">
-                        <span class="relative z-10 flex items-center justify-center">
-                            <i class="fas fa-key mr-2 group-hover:animate-spin"></i>
-                            Access Command Center
-                        </span>
-                    </button>
-                </div>
+                        <!-- Submit Button -->
+                        <div>
+                            <button type="submit" class="w-full group relative overflow-hidden"
+                                style="background: linear-gradient(135deg, #FF0066 0%, #CC0052 100%); border: 2px solid #FF0066; color: white; padding: 12px 24px; border-radius: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; transition: all 0.3s ease; box-shadow: 0 0 20px rgba(255, 0, 102, 0.4);">
+                                <span class="relative z-10 flex items-center justify-center">
+                                    <i class="fas fa-key mr-2 group-hover:animate-spin"></i>
+                                    Access Command Center
+                                </span>
+                            </button>
+                        </div>
             </form>
-            
+
             <!-- Additional Links -->
             <div class="mt-6 pt-6 border-t border-red-600/30">
                 <div class="text-center space-y-3">
@@ -122,27 +124,30 @@
     <script>
         document.getElementById('adminLoginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            
+
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const errorDiv = document.getElementById('errorMessage');
             const successDiv = document.getElementById('successMessage');
-            
+
             // Hide previous messages
             errorDiv.classList.add('hidden');
             successDiv.classList.add('hidden');
-            
+
             try {
                 const response = await fetch('../backend/api/admin_login.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     successDiv.querySelector('span').textContent = data.message;
                     successDiv.classList.remove('hidden');
@@ -160,4 +165,5 @@
         });
     </script>
 </body>
+
 </html>

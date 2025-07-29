@@ -63,4 +63,3 @@ if ($result) {
 } else {
     echo json_encode(['success' => false, 'message' => 'Failed to create admin account']);
 }
-?>
